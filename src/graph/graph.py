@@ -1,5 +1,6 @@
 from logging import getLogger
 from task.task import Task
+from dataset.dataset import DataSet
 from typing import List
 from enum import Enum
 
@@ -60,6 +61,14 @@ class Graph:
     def run(self, ds):
         while self.runnable_tasks():
             t = self.runnable_tasks()[0]
+
+            if t.dependencies:
+                input_ds = DataSet()
+                for d in reversed(t.dependencies):
+                    input_ds.merge(d.output_ds)
+            else:
+                input_ds = ds
+
             ds = t.run(ds)
         return ds
 

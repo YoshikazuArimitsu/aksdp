@@ -3,18 +3,13 @@ from data.sqlalchemy_model_data import SqlAlchemyModelData
 import os
 from sqlalchemy import create_engine
 from logging import getLogger, basicConfig, DEBUG
-from logging.config import dictConfig
-from graph.graph import Graph
 from pathlib import Path
 from task.task import Task
 from dataset.dataset import DataSet
 from data.dataframe_data import DataFrameData
-from data.raw_data import RawData
 from repository.localfile_repository import LocalFileRepository
-from repository.repository import Repository
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import (Boolean, Column, DateTime, Enum, Float, ForeignKey,
-                        Integer, String, Text, event)
+from sqlalchemy import (Column, Float, Integer, String)
 
 logger = getLogger(__name__)
 

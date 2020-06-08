@@ -1,7 +1,5 @@
 from logging import getLogger, basicConfig, DEBUG
-from repository.repository import Repository
 from repository.localfile_repository import LocalFileRepository
-from data.raw_data import RawData
 from data.dataframe_data import DataFrameData
 from dataset.dataset import DataSet
 from task.task import Task

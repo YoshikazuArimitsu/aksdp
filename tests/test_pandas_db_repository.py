@@ -1,14 +1,10 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm.exc import FlushError
-from data.raw_data import RawData
 from data.dataframe_data import DataFrameData
 from repository.localfile_repository import LocalFileRepository
 from repository.pnadas_db_repository import PandasDbRepository
 import unittest
 from pathlib import Path
 import os
-import pandas as pd
-from logging import basicConfig, DEBUG
 
 
 class TestPandasDbRepository(unittest.TestCase):

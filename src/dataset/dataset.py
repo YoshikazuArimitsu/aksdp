@@ -15,7 +15,7 @@ class DataSet:
         return self.data[name]
 
     def merge(self, ds: 'DataSet'):
-        for k, v in ds.items():
+        for k, v in ds.data.items():
             self.data[k] = v
 
     def save_all(self):

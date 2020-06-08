@@ -1,15 +1,11 @@
 from logging import getLogger, basicConfig, DEBUG
-from logging.config import dictConfig
-
 import os
 from graph.graph import Graph
 from pathlib import Path
 from task.task import Task
 from dataset.dataset import DataSet
 from data.dataframe_data import DataFrameData
-from data.raw_data import RawData
 from repository.localfile_repository import LocalFileRepository
-from repository.repository import Repository
 
 logger = getLogger(__name__)
 
@@ -63,11 +59,11 @@ if __name__ == '__main__':
     print(ds.get('titanic').content)
 
     # Graphで処理する
-    # Age欠損埋め -> 性別・乗船した港 のコード化 の順で処理
+    # Age欠損埋め -> 性別のコード化 -> 乗船した港 のコード化 の順で処理
     graph = Graph()
     fill_age = graph.append(FillNaMedian("Age"))
-    graph.append(SexToCode(), [fill_age])
-    graph.append(EmbarkedToCode(), [fill_age])
+    sex_to_code = graph.append(SexToCode(), [fill_age])
+    graph.append(EmbarkedToCode(), [sex_to_code])
     ds = graph.run(ds)
 
     print("## Processed data")

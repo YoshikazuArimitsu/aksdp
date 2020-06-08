@@ -6,8 +6,6 @@ from pathlib import Path
 import os
 import tempfile
 
-from logging import basicConfig, DEBUG
-
 
 class TestLocalFileRepository(unittest.TestCase):
     def test_raw(self):

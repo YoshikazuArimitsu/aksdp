@@ -1,7 +1,5 @@
-import pandas as pd
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import (Boolean, Column, DateTime, Enum, Float, ForeignKey,
-                        Integer, String, Text, event)
+from sqlalchemy import (Column, Integer, String)
 from sqlalchemy import create_engine
 from repository.localfile_repository import LocalFileRepository
 from repository.sqlalchemy_repository import SqlAlchemyRepository
@@ -10,10 +8,9 @@ from data.sqlalchemy_model_data import SqlAlchemyModelData
 from pathlib import Path
 import os
 import unittest
-from data.data import Data, DataType
 from logging import getLogger
-logger = getLogger(__name__)
 
+logger = getLogger(__name__)
 Base = declarative_base()
 
 

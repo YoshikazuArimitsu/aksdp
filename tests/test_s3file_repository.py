@@ -5,9 +5,6 @@ from repository.localfile_repository import LocalFileRepository
 import unittest
 from pathlib import Path
 import os
-import tempfile
-
-from logging import basicConfig, DEBUG
 
 
 class TestS3FileRepository(unittest.TestCase):
