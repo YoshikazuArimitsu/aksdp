@@ -59,6 +59,7 @@ class Graph:
         return [g for g in self.graph if g.is_runnable()]
 
     def run(self, ds):
+        last_ds = ds
         while self.runnable_tasks():
             t = self.runnable_tasks()[0]
 
@@ -69,8 +70,8 @@ class Graph:
             else:
                 input_ds = ds
 
-            ds = t.run(ds)
-        return ds
+            last_ds = t.run(input_ds)
+        return last_ds
 
     def is_all_completed(self) -> bool:
         return all([gt.status == TaskStatus.COMPLETED for gt in self.graph])
