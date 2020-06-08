@@ -57,9 +57,11 @@ class SqlAlchemyModelData(Data):
         data = list(map(lambda x: self.repository.insert(x), self.content_))
         self.content_ = data
 
-    def query(self, qf):
+    def query(self, qf=None):
         q = self.repository.query(self.model_class)
-        self.content_ = list(qf(q).all())
+        if qf:
+            q = qf(q)
+        self.content_ = list(q.all())
 
     @property
     def content(self):

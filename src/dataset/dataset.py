@@ -15,8 +15,9 @@ class DataSet:
         return self.data[name]
 
     def save_all(self):
-        for d in self.data:
-            self.data.save()
+        for k, v in self.data.items():
+            logger.debug(f"save dataset[{k}]...")
+            v.save()
 
     def apply(self, task):
         return task.main(self)
