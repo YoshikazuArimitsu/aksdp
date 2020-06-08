@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from data.dataframe_data import DataFrameData
 from repository.localfile_repository import LocalFileRepository
-from repository.pnadas_db_repository import PandasDbRepository
+from repository.pandas_db_repository import PandasDbRepository
 import unittest
 from pathlib import Path
 import os
