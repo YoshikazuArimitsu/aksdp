@@ -14,10 +14,14 @@ class DataSet:
     def get(self, name: str) -> Data:
         return self.data[name]
 
+    def merge(self, ds: 'DataSet'):
+        for k, v in ds.items():
+            self.data[k] = v
+
     def save_all(self):
         for k, v in self.data.items():
             logger.debug(f"save dataset[{k}]...")
             v.save()
 
-    def apply(self, task):
+    def apply(self, task) -> 'DataSet':
         return task.main(self)

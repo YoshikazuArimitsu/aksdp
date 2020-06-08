@@ -45,4 +45,4 @@ class TestS3FileRepository(unittest.TestCase):
 
         # S3からファイルを読み込み
         data2 = DataFrameData.load(repo_s3)
-        self.asssetTrue(len(data2.content) > 0)
+        self.assertTrue(len(data2.content) > 0)

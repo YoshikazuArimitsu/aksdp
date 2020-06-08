@@ -53,10 +53,6 @@ class SqlAlchemyModelData(Data):
             map(lambda x: self.repository.insert(x), append_entities))
         self.content.extend(append_models)
 
-    def insert_all(self):
-        data = list(map(lambda x: self.repository.insert(x), self.content_))
-        self.content_ = data
-
     def query(self, qf=None):
         q = self.repository.query(self.model_class)
         if qf:

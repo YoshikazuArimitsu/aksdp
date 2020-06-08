@@ -17,7 +17,8 @@ class Data:
         self.data_type_ = data_type
 
     def save(self):
-        self.repository.save(self)
+        if self.repository:
+            self.repository.save(self)
 
     @property
     def data_type(self) -> DataType:
