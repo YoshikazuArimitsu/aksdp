@@ -98,7 +98,7 @@ if __name__ == '__main__':
 
         ds = DataSet()
         ds.put('titanic', d)
+
         ds = SexToCode().main(ds)
         ds = EmbarkedToCode().main(ds)
-
         ds.save_all()

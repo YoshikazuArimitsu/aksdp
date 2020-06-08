@@ -2,4 +2,6 @@ from abc import ABCMeta, abstractmethod
 
 
 class Repository(metaclass=ABCMeta):
-    pass
+    @abstractmethod
+    def save(self, data):
+        pass

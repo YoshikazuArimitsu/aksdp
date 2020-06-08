@@ -30,7 +30,7 @@ class TestLocalFileRepository(unittest.TestCase):
         repo = LocalFileRepository(
             Path(os.path.dirname(__file__)) / Path('titanic.csv'))
 
-        data = RawData.load(repo)
+        data = DataFrameData.load(repo)
 
         tmp_path = Path(tempfile.gettempdir()) / \
             Path(next(tempfile._get_candidate_names()))
@@ -38,4 +38,5 @@ class TestLocalFileRepository(unittest.TestCase):
         data.repository = repo
         data.save()
 
-        print(f"write to {tmp_path}")
+        self.assertTrue(tmp_path.exists())
+        self.assertTrue(tmp_path.is_file())

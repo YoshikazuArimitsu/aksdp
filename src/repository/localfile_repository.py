@@ -1,5 +1,5 @@
 from logging import getLogger
-from repository.repository import Repository
+from .repository import Repository
 from pathlib import Path
 from data.data import Data, DataType
 
