@@ -57,6 +57,7 @@ Data/Repository の組み合わせによって保存・読み込み時の動き�
 |S3FileRepository|S3上のファイル|RawData, DataFrameData(CSVとして読み出し/保存)|
 |PandasDbRepository|指定DBの指定テーブル|DataFrameData(pandas.to_sql/read_table_sqlにより、1DataFrame=1テーブルのように扱う)|
 |SqlAlchemyRepository|指定DB|SqlAlchemyModelData|
+|None|無し|保存時の処理をスキップ|
 
 ##### 使用例
 
