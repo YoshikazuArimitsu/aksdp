@@ -2,6 +2,7 @@ from logging import getLogger
 from .repository import Repository
 from pathlib import Path
 from data.data import Data, DataType
+import json
 
 logger = getLogger(__name__)
 
@@ -14,6 +15,9 @@ class LocalFileRepository(Repository):
     def save(self, data: Data):
         if data.data_type == DataType.RAW:
             self.path.write_bytes(data.content)
+        elif data.data_type == DataType.JSON:
+            json_str = json.dumps(data.content, ensure_ascii=False)
+            self.path.write_bytes(json_str.encode('utf-8'))
         elif data.data_type == DataType.DATAFRAME:
             data.content.to_csv(str(self.path), index=False)
         else:

@@ -8,7 +8,8 @@ logger = getLogger(__name__)
 class DataType(Enum):
     RAW = 0
     DATAFRAME = 1
-    SQLALCHEMY_MODEL = 2
+    JSON = 2
+    SQLALCHEMY_MODEL = 3
 
 
 class Data:

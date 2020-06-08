@@ -48,13 +48,14 @@ Data/Repository の組み合わせによって保存・読み込み時の動き�
 |:--|:--|
 |RawData|バイト列(bytes)|
 |DataFrameData|DataFrame|
+|JsonData|dict|
 |SqlAlchemyModelData|SqlAlchemy のモデルのリスト(DataFrameとの相互変換可)|
 
 
 |Repository実装|保存先|組み合わせ可能なData実装|
 |:--|:--|:--|
-|LocalFileRepository|ローカルのファイル|RawData, DataFrameData(CSVとして読み出し/保存)|
-|S3FileRepository|S3上のファイル|RawData, DataFrameData(CSVとして読み出し/保存)|
+|LocalFileRepository|ローカルのファイル|RawData, JsonData, DataFrameData(CSVとして読み出し/保存)|
+|S3FileRepository|S3上のファイル|RawData, JsonData, DataFrameData(CSVとして読み出し/保存)|
 |PandasDbRepository|指定DBの指定テーブル|DataFrameData(pandas.to_sql/read_table_sqlにより、1DataFrame=1テーブルのように扱う)|
 |SqlAlchemyRepository|指定DB|SqlAlchemyModelData|
 |None|無し|保存時の処理をスキップ|
@@ -72,7 +73,7 @@ titanic_data = DataFrameData.load(repo)
 
 Data.content で内部データにアクセスできます
 
-```
+```python
 df = titanic_data.content
 df.head
 ```
@@ -82,7 +83,10 @@ Data.save() を呼び出すと保存します。保存先は Repository によ�
 
 #### DataSet
 
-単なる文字列をキーにした Data の dict。
+単なる文字列をキーにした Data の dict。  
+DataSet.put()/get() で所有するデータにアクセス。
+
+DataSet.save_all() を呼び出すと所有するデータを全て保存する。
 
 ### データの処理
 
@@ -97,6 +101,27 @@ Graph を作成し、複数の Task を投入して依存関係を設定する�
 
 依存先が無い Task には Graph.run() に渡した DataSet が入力として使用される。  
 他の Task に依存している Task には依存Taskが出力として返した DataSet をマージした DataSet が入力として使用される。
+
+```python
+class 処理A(Task):
+   ...
+
+class 処理B(Task):
+   ...
+
+class 処理C(Task):
+   ...
+
+class 処理D(Task):
+   ...
+
+graph = Graph()
+taskA = graph.append(処理A())                   # 依存なし。graph.run() に指定した DataSet がINPUT
+taskB = graph.append(処理B())                   # 依存なし。graph.run() に指定した DataSet がINPUT
+taskC = graph.append(処理C(), [taskA])          # taskAに依存。taskAの出力した DataSet がINPUT
+taskD = graph.append(処理D(), [taskB, taskC])   # taskB, taskCに依存。taskB&Cの出力した DataSet をマージしたものがINPUT
+graph.run(ds)
+```
 
 ### SQLAlchemyモデルの使用
 
