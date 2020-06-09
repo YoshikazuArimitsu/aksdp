@@ -13,7 +13,7 @@ workspace/
 ├─ requirements_dev.txt .............. 必要パッケージ
 ├─ examples/ ......................... 
 │  ├─ 1_basic_data_process/ .......... 基本的なデータ処理のサンプル
-│  ├─ 2_graph/ ....................... Graphを使って複数Task を繋げるサンプル
+│  ├─ 2_graph_serial/ ................ Graphを使って複数Task を繋げるサンプル
 │  ├─ 3_graph_branch_merge/ .......... GraphでTaskの依存関係が分岐・合流するサンプル
 │  └─ 4_sqlalchemy_model_sequential/ . SQLAlchemy を利用したレコードごとの順次処理を行うサンプル
 ├─ src/ .............................. ソースコード
@@ -35,6 +35,11 @@ workspace/
 * DataFrameに対応する
 * SQLAlchemyのモデルクラスベースのデータ保存・読み出しに対応する
 
+そのうちやりたい事
+
+* AirFlow対応
+* 並列処理(自分で実装する必要は無い気もする)
+
 ## 使い方
 
 ### データの持ち方
@@ -48,7 +53,7 @@ Data/Repository の組み合わせによって保存・読み込み時の動き�
 |:--|:--|
 |RawData|バイト列(bytes)|
 |DataFrameData|DataFrame|
-|JsonData|dict|
+|JsonData|dict(JSON)|
 |SqlAlchemyModelData|SqlAlchemy のモデルのリスト(DataFrameとの相互変換可)|
 
 
@@ -83,6 +88,13 @@ Data.save() を呼び出すと保存します。保存先は Repository によ�
 
 #### DataSet
 
+```python
+ds.put('titanic', titanic_data)
+df = ds.get('titanic').content
+
+ds.save_all()
+```
+
 単なる文字列をキーにした Data の dict。  
 DataSet.put()/get() で所有するデータにアクセス。
 
@@ -92,8 +104,19 @@ DataSet.save_all() を呼び出すと所有するデータを全て保存する�
 
 #### Task
 
+```python
+class xxx(Task):
+   def main(self, ds:DataSet):
+      df = ds.get('titanic').content
+
+      ～ 何かの処理 ～
+
+      return ds
+```
+
 DataSet を入力し、DataSet を出力するデータ処理の最小単位。  
 Taskクラスを継承して main() にデータの処理を実装する。
+
 
 #### Graph
 
@@ -123,6 +146,10 @@ taskD = graph.append(処理D(), [taskB, taskC])   # taskB, taskCに依存。task
 graph.run(ds)
 ```
 
+##### ConcurrentGraph
+
+マルチスレッド対応の Graph です。使用は自己責任で。
+
 ### SQLAlchemyモデルの使用
 
 #### モデルのクエリ
@@ -136,6 +163,29 @@ SqlAlchemyModelData.to_dataframe() で読み込み済みのモデルを DataFram
 
 また、SqlAlchemyModelData.update_dataframe() に DataFrame を渡すと DataFrameの内容でモデルを更新します。
 DataFrame の行インデックスを参照し、モデルのリストに同番のモデルがあればそのモデルを更新、無ければ追加、削除等により行が抜けている場合はそのモデルを削除します。
+
+### examples
+
+#### 1_basic_data_process
+
+CSVから DataFrame にデータを読み込み、Taskを定義して幾つかの変換処理を行うサンプルです。
+
+#### 2_graph_serial
+
+1_basic_data_process と同様の処理を Graph を定義して実行させるサンプルです。
+
+#### 3_graph_branch_merge
+
+Graph を利用し、1つの DataFrame を更新するのではなく各タスクごとに独自の出力を作成し、最後にマージするサンプルです
+
+##### 3.5_graph_concurrent
+
+3_graph_branch_merge を ConcurrengGraph を使用して実行します。
+
+#### 4_sqlalchemy_model_sequential
+
+SQLAlchemyのモデルから一行ずつ読み込んで DataSet を作成し、行ごとに処理してDBに書き戻しを行うサンプルです。
+
 
 ## 備考
 
