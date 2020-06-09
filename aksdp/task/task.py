@@ -1,4 +1,4 @@
-from dataset.dataset import DataSet
+from ..dataset.dataset import DataSet
 from abc import ABCMeta, abstractmethod
 
 

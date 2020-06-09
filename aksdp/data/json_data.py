@@ -1,5 +1,5 @@
 from logging import getLogger
-from repository.repository import Repository
+from ..repository.repository import Repository
 from .data import Data, DataType
 from io import StringIO
 import json

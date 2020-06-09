@@ -1,7 +1,7 @@
 from logging import getLogger
 from .repository import Repository
 from pathlib import Path
-from data.data import Data, DataType
+from ..data.data import Data, DataType
 import json
 
 logger = getLogger(__name__)

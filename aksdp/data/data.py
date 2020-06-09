@@ -1,5 +1,5 @@
 from logging import getLogger
-from repository.repository import Repository
+from ..repository.repository import Repository
 from enum import Enum
 
 logger = getLogger(__name__)

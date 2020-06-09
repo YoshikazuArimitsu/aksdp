@@ -1,6 +1,6 @@
 from sqlalchemy.orm import scoped_session, sessionmaker
 from logging import getLogger
-from data.data import Data, DataType
+from ..data.data import Data, DataType
 from .repository import Repository
 
 logger = getLogger(__name__)

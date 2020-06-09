@@ -4,9 +4,6 @@ version = "0.1.0"
 description = "DataProcessingPipelene template"
 authors = ["Y.Arimitsu <yoshikazu_arimitsu@albert2005.co.jp>"]
 license = "MIT"
-packages = [
-    { include = "src" }
-]
 
 [tool.poetry.dependencies]
 python = "^3.6.1"

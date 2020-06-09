@@ -3,7 +3,7 @@ import tempfile
 from logging import getLogger
 from .localfile_repository import LocalFileRepository
 from pathlib import Path
-from data.data import Data
+from ..data.data import Data
 from urllib.parse import urlparse
 
 logger = getLogger(__name__)

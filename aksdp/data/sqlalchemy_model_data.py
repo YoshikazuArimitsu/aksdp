@@ -1,4 +1,4 @@
-from data.data import Data, DataType
+from .data.data import Data, DataType
 import pandas as pd
 
 from logging import getLogger

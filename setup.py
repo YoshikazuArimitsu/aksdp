@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from setuptools import setup
 
-packages = ["src", "src.data", "src.dataset", "src.graph", "src.repository", "src.task"]
+packages = ["aksdp", "aksdp.data", "aksdp.dataset", "aksdp.graph", "aksdp.repository", "aksdp.task"]
 
 package_data = {"": ["*"]}
 
@@ -14,9 +14,9 @@ setup_kwargs = {
     "long_description": None,
     "author": "Y.Arimitsu",
     "author_email": "yoshikazu_arimitsu@albert2005.co.jp",
-    "maintainer": "Y.Arimitsu",
-    "maintainer_email": "yoshikazu_arimitsu@albert2005.co.jp",
-    "url": "https://github.com/YoshikazuArimitsu/DataProcessingPipiline_template",
+    "maintainer": None,
+    "maintainer_email": None,
+    "url": None,
     "packages": packages,
     "package_data": package_data,
     "install_requires": install_requires,
