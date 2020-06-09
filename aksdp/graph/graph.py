@@ -1,7 +1,7 @@
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from logging import getLogger
-from ..task.task import Task
-from ..dataset.dataset import DataSet
+from aksdp.task import Task
+from aksdp.dataset import DataSet
 from typing import List
 from enum import Enum
 

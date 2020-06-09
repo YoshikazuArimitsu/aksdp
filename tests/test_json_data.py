@@ -1,5 +1,5 @@
-from data.json_data import JsonData
-from repository.localfile_repository import LocalFileRepository
+from aksdp.data import JsonData
+from aksdp.repository import LocalFileRepository
 import unittest
 from pathlib import Path
 import os

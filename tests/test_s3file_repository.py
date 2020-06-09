@@ -1,7 +1,5 @@
-from data.raw_data import RawData
-from data.dataframe_data import DataFrameData
-from repository.s3file_repository import S3FileRepository
-from repository.localfile_repository import LocalFileRepository
+from aksdp.data import RawData, DataFrameData
+from aksdp.repository import S3FileRepository, LocalFileRepository
 import unittest
 from pathlib import Path
 import os

@@ -1,5 +1,4 @@
 from logging import getLogger
-from ..repository.repository import Repository
 from .data import Data, DataType
 from io import StringIO
 import json
@@ -8,7 +7,7 @@ logger = getLogger(__name__)
 
 
 class JsonData(Data):
-    def __init__(self, repository: Repository, content: dict):
+    def __init__(self, repository, content: dict):
         super().__init__(repository, DataType.JSON)
         self.content_ = content
 

@@ -1,12 +1,11 @@
 from logging import getLogger
-from ..repository.repository import Repository
 from .data import Data, DataType
 
 logger = getLogger(__name__)
 
 
 class RawData(Data):
-    def __init__(self, repository: Repository, content: bytes = None):
+    def __init__(self, repository, content: bytes = None):
         super().__init__(repository, DataType.RAW)
         self.content_ = content
 

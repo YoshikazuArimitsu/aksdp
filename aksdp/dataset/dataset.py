@@ -1,5 +1,5 @@
 from logging import getLogger
-from ..data.data import Data
+from aksdp.data import Data
 
 logger = getLogger(__name__)
 

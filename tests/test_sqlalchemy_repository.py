@@ -1,14 +1,12 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String
 from sqlalchemy import create_engine
-from repository.localfile_repository import LocalFileRepository
-from repository.sqlalchemy_repository import SqlAlchemyRepository
-from data.dataframe_data import DataFrameData
-from data.sqlalchemy_model_data import SqlAlchemyModelData
 from pathlib import Path
 import os
 import unittest
 from logging import getLogger
+from aksdp.data import RawData, DataFrameData, SqlAlchemyModelData
+from aksdp.repository import SqlAlchemyRepository, LocalFileRepository
 
 logger = getLogger(__name__)
 Base = declarative_base()

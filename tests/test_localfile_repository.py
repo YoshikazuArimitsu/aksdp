@@ -1,6 +1,6 @@
-from data.raw_data import RawData
-from data.dataframe_data import DataFrameData
-from repository.localfile_repository import LocalFileRepository
+from aksdp.data import RawData
+from aksdp.data import DataFrameData
+from aksdp.repository import LocalFileRepository
 import unittest
 from pathlib import Path
 import os

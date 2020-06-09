@@ -1,5 +1,5 @@
 from logging import getLogger
-from ..data.data import Data, DataType
+from aksdp.data import Data, DataType
 from io import StringIO
 import pandas as pd
 from .repository import Repository
