@@ -1,7 +1,9 @@
 from logging import getLogger
 from enum import Enum
+from typing import TypeVar, Generic
 
 logger = getLogger(__name__)
+TRepository = TypeVar("Repository")
 
 
 class DataType(Enum):
@@ -12,7 +14,7 @@ class DataType(Enum):
 
 
 class Data:
-    def __init__(self, repository, data_type: DataType = DataType.RAW):
+    def __init__(self, repository: TRepository, data_type: DataType = DataType.RAW):
         self.repository = repository
         self.data_type_ = data_type
 

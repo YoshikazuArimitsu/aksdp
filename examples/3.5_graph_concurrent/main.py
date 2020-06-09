@@ -1,13 +1,13 @@
 from logging import getLogger, basicConfig, DEBUG
 import os
-from graph.graph import Graph, ConcurrentGraph
 from pathlib import Path
-from task.task import Task
-from dataset.dataset import DataSet
-from data.dataframe_data import DataFrameData
-from repository.localfile_repository import LocalFileRepository
 import random
 import time
+from aksdp.graph import Graph, ConcurrentGraph
+from aksdp.task import Task
+from aksdp.dataset import DataSet
+from aksdp.data import DataFrameData
+from aksdp.repository import LocalFileRepository
 
 logger = getLogger(__name__)
 

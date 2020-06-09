@@ -31,14 +31,17 @@ class GraphTask:
 
         return all([gt.status == TaskStatus.COMPLETED for gt in self.dependencies])
 
-    def run(self, ds):
+    def run(self, ds: DataSet) -> DataSet:
         try:
-            logger.debug(f"running task({self.task.__class__.__name__}) ...")
+            logger.debug(f"task({self.task.__class__.__name__}) started.")
+            logger.debug(f"  input_ds = {str(ds)}")
             self.status = TaskStatus.RUNNING
-            self.output_ds = self.task.main(ds)
+            output_ds = self.task.gmain(ds)
 
             logger.debug(f"task({self.task.__class__.__name__}) completed.")
+            logger.debug(f"  output_ds = {str(output_ds)}")
             self.status = TaskStatus.COMPLETED
+            self.output_ds = output_ds
         except BaseException as e:
             logger.error(f"task({self.task.__class__.__name__}) failed. {str(e)}")
             self.status = TaskStatus.ERROR
@@ -49,17 +52,30 @@ class GraphTask:
 class Graph:
     def __init__(self):
         self.graph = []
+        self.error_handlers = []
+        self.abort = False
 
-    def append(self, task: Task, dependencies: List[GraphTask] = None):
+    def append(self, task: Task, dependencies: List[GraphTask] = None) -> GraphTask:
         gt = GraphTask(task, dependencies)
         self.graph.append(gt)
         return gt
+
+    def add_error_handler(self, cls, fn):
+        self.error_handlers.append((cls, fn))
 
     def runnable_tasks(self) -> List[GraphTask]:
         return [g for g in self.graph if g.is_runnable()]
 
     def _run(self, graph_task, input_ds):
-        return graph_task.run(input_ds)
+        try:
+            return graph_task.run(input_ds)
+        except BaseException as e:
+            for eh in self.error_handlers:
+                if isinstance(e, eh[0]):
+                    self.abort = True
+                    eh[1](e, input_ds)
+                    return None
+            raise
 
     def _make_task_inputs(self, graph_task):
         if not graph_task.dependencies:
@@ -70,58 +86,16 @@ class Graph:
             ds.merge(d.output_ds)
         return ds
 
-    def run(self, ds):
+    def run(self, ds: DataSet = None) -> DataSet:
         last_ds = ds
-        while self.runnable_tasks():
+        while self.runnable_tasks() and self.abort is False:
             t = self.runnable_tasks()[0]
 
             input_ds = self._make_task_inputs(t)
             input_ds = ds if input_ds is None else input_ds
 
-            last_ds = t.run(input_ds)
+            last_ds = self._run(t, input_ds)
         return last_ds
 
     def is_all_completed(self) -> bool:
         return all([gt.status == TaskStatus.COMPLETED for gt in self.graph])
-
-
-class ConcurrentGraph(Graph):
-    def __init__(self, max_workers=None):
-        super().__init__()
-        self.pool = ThreadPoolExecutor(max_workers=max_workers)
-
-    def run(self, ds):
-        last_ds = ds
-        features = []
-
-        while self.is_all_completed() is False:
-            tasks = self.runnable_tasks()
-
-            for t in tasks:
-                input_ds = self._make_task_inputs(t)
-                input_ds = ds if input_ds is None else input_ds
-
-                # タスク内でステータスを変える場合、実際に動き出す前に
-                # 再度回ってきて起動する事があるので外部から変更する
-                t.status = TaskStatus.RUNNING
-                features.append(self.pool.submit(t.run, input_ds))
-
-            # どれかの Feature が終わるまで待つ
-            def all_feature_running(features):
-                return all([f.running() for f in features])
-
-            while all_feature_running(features):
-                import time
-
-                time.sleep(0.1)
-
-            # 終了した features の result を吸い上げ、features を更新
-            _next_featrues = []
-            for f in features:
-                if f.done():
-                    last_ds = f.result()
-                else:
-                    _next_featrues.append(f)
-            features = _next_featrues
-
-        return last_ds

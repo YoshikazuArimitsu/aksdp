@@ -1,18 +1,19 @@
 from .data import Data, DataType
 import pandas as pd
-
 from logging import getLogger
+from typing import TypeVar
 
 logger = getLogger(__name__)
+TRepository = TypeVar("Repository")
 
 
 class SqlAlchemyModelData(Data):
-    def __init__(self, repository, model_class):
+    def __init__(self, repository: TRepository, model_class):
         super().__init__(repository, DataType.SQLALCHEMY_MODEL)
         self.model_class = model_class
         self.content_ = []
 
-    def to_dataframe(self):
+    def to_dataframe(self) -> pd.DataFrame:
         """モデルのリストを DataFrame に変換する"""
         columns = [c.name for c in self.model_class.__table__.columns]
 
@@ -24,7 +25,7 @@ class SqlAlchemyModelData(Data):
 
         return df
 
-    def update_dataframe(self, df):
+    def update_dataframe(self, df: pd.DataFrame):
         """DataFrameの内容をモデルのリストに書き戻す"""
         append_entities = []
 
@@ -59,5 +60,8 @@ class SqlAlchemyModelData(Data):
         self.content_ = list(q.all())
 
     @property
-    def content(self):
+    def content(self) -> list:
         return self.content_
+
+    def __str__(self) -> str:
+        return f"SqlAlchemyModelData: {len(self.content)} records"

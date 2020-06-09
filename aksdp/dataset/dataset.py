@@ -1,5 +1,6 @@
 from logging import getLogger
 from aksdp.data import Data
+from typing import List
 
 logger = getLogger(__name__)
 
@@ -14,6 +15,9 @@ class DataSet:
     def get(self, name: str) -> Data:
         return self.data[name]
 
+    def keys(self) -> List[str]:
+        return self.data.keys()
+
     def merge(self, ds: "DataSet"):
         for k, v in ds.data.items():
             self.data[k] = v
@@ -25,3 +29,7 @@ class DataSet:
 
     def apply(self, task) -> "DataSet":
         return task.main(self)
+
+    def __str__(self) -> str:
+        keys = ",".join(self.keys())
+        return f"DataSet({keys})"

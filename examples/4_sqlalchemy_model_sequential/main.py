@@ -1,15 +1,13 @@
-from repository.sqlalchemy_repository import SqlAlchemyRepository
-from data.sqlalchemy_model_data import SqlAlchemyModelData
 import os
 from sqlalchemy import create_engine
 from logging import getLogger, basicConfig, DEBUG
 from pathlib import Path
-from task.task import Task
-from dataset.dataset import DataSet
-from data.dataframe_data import DataFrameData
-from repository.localfile_repository import LocalFileRepository
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Float, Integer, String
+from aksdp.repository import SqlAlchemyRepository, LocalFileRepository
+from aksdp.data import SqlAlchemyModelData, DataFrameData
+from aksdp.task import Task
+from aksdp.dataset import DataSet
 
 logger = getLogger(__name__)
 

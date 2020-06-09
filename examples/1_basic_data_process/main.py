@@ -1,8 +1,8 @@
 from logging import getLogger, basicConfig, DEBUG
-from repository.localfile_repository import LocalFileRepository
-from data.dataframe_data import DataFrameData
-from dataset.dataset import DataSet
-from task.task import Task
+from aksdp.repository import LocalFileRepository
+from aksdp.data import DataFrameData
+from aksdp.dataset import DataSet
+from aksdp.task import Task
 from pathlib import Path
 import os
 
