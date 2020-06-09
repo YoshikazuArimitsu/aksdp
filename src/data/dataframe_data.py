@@ -18,7 +18,7 @@ class DataFrameData(Data):
 
     @classmethod
     def create_from_csv(cls, repository, raw_data):
-        sio = StringIO(raw_data.decode('utf-8'))
+        sio = StringIO(raw_data.decode("utf-8"))
         df = pd.read_csv(sio)
         return DataFrameData(repository, df)
 

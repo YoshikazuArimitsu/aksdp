@@ -1,5 +1,5 @@
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import (Column, Integer, String)
+from sqlalchemy import Column, Integer, String
 from sqlalchemy import create_engine
 from repository.localfile_repository import LocalFileRepository
 from repository.sqlalchemy_repository import SqlAlchemyRepository
@@ -15,7 +15,7 @@ Base = declarative_base()
 
 
 class Titanic(Base):
-    __tablename__ = 'titanic'
+    __tablename__ = "titanic"
 
     PassengerId = Column(Integer, primary_key=True)
     Survived = Column(Integer)
@@ -26,19 +26,16 @@ class Titanic(Base):
 
 class TestSqlAlchemyRepository(unittest.TestCase):
     def setUp(self):
-        self.engine = create_engine('sqlite:///ut.sqlite3', echo=True)
+        self.engine = create_engine("sqlite:///ut.sqlite3", echo=True)
 
         Base.metadata.drop_all(self.engine)
         Base.metadata.create_all(self.engine)
 
     def table_init(self):
-        repo = LocalFileRepository(
-            Path(os.path.dirname(__file__)) / Path('titanic.csv'))
+        repo = LocalFileRepository(Path(os.path.dirname(__file__)) / Path("titanic.csv"))
         data = DataFrameData.load(repo)
 
-        repo_s = SqlAlchemyRepository(
-            self.engine
-        )
+        repo_s = SqlAlchemyRepository(self.engine)
 
         md = SqlAlchemyModelData(repo_s, Titanic)
         md.update_dataframe(data.content)
@@ -56,10 +53,10 @@ class TestSqlAlchemyRepository(unittest.TestCase):
 
         # DataFrameとして取得
         df = d.to_dataframe()
-        self.assertEqual('Braund, Mr. Owen Harris', df.at[0, 'Name'])
+        self.assertEqual("Braund, Mr. Owen Harris", df.at[0, "Name"])
 
         # DataFrameを更新し、書き戻す
-        df.loc[df.index[0], 'Name'] = 'Taro Yamada'
+        df.loc[df.index[0], "Name"] = "Taro Yamada"
         d.update_dataframe(df)
         d.save()
 
@@ -68,7 +65,7 @@ class TestSqlAlchemyRepository(unittest.TestCase):
         d.query(lambda x: x.filter(Titanic.PassengerId == 1))
         self.assertEqual(1, len(d.content))
         self.assertEqual(1, d.content[0].PassengerId)
-        self.assertEqual('Taro Yamada', d.content[0].Name)
+        self.assertEqual("Taro Yamada", d.content[0].Name)
 
     def test_query_and_remove(self):
         self.table_init()
@@ -80,7 +77,7 @@ class TestSqlAlchemyRepository(unittest.TestCase):
 
         # DataFrameとして取得
         df = d.to_dataframe()
-        self.assertEqual('Braund, Mr. Owen Harris', df.at[0, 'Name'])
+        self.assertEqual("Braund, Mr. Owen Harris", df.at[0, "Name"])
 
         # DataFrameの行を削除し、書き戻す
         df = df.drop(df.index[[0, 1, 2]])

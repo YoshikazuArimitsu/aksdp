@@ -5,6 +5,7 @@
     ],
     "python.pythonPath": "/opt/python/latest/bin/python",
     "python.envFile": "${workspaceFolder}/.env",
+    "python.formatting.provider": "black",
     "python.linting.enabled": true,
     "python.linting.flake8Enabled": true,
     "python.linting.flake8Args": [
@@ -17,10 +18,6 @@
     "python.testing.unittestEnabled": true,
     "python.testing.nosetestsEnabled": false,
     "python.testing.pytestEnabled": false,
-    "terminal.integrated.env.linux": {
-        "_PATH": "${env:PATH}:${workspaceRoot}/src",
-        "_PYTHONPATH": "${env:PYTHONPATH}:${workspaceRoot}/src"
-    },
     "python.testing.unittestArgs": [
         "-v",
         "-s",

@@ -17,7 +17,7 @@ class FillNaMedian(Task):
         self.column = column
 
     def main(self, ds):
-        df = ds.get('titanic').content
+        df = ds.get("titanic").content
         df[self.column] = df[self.column].fillna(df[self.column].median())
         return ds
 
@@ -27,7 +27,7 @@ class SexToCode(Task):
     """
 
     def main(self, ds):
-        df = ds.get('titanic').content
+        df = ds.get("titanic").content
         df["Sex"][df["Sex"] == "male"] = 0
         df["Sex"][df["Sex"] == "female"] = 1
         return ds
@@ -35,7 +35,7 @@ class SexToCode(Task):
 
 class EmbarkedToCode(Task):
     def main(self, ds):
-        df = ds.get('titanic').content
+        df = ds.get("titanic").content
         df["Embarked"] = df["Embarked"].fillna("S")
         df["Embarked"][df["Embarked"] == "S"] = 0
         df["Embarked"][df["Embarked"] == "C"] = 1
@@ -43,19 +43,18 @@ class EmbarkedToCode(Task):
         return ds
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     basicConfig(level=DEBUG)
 
     # データセットの読み込み
     ds = DataSet()
-    repo = LocalFileRepository(
-        Path(os.path.dirname(__file__)) / Path('../titanic.csv'))
+    repo = LocalFileRepository(Path(os.path.dirname(__file__)) / Path("../titanic.csv"))
     titanic_data = DataFrameData.load(repo)
-    ds.put('titanic', titanic_data)
+    ds.put("titanic", titanic_data)
 
     #
     print("## Original data")
-    print(ds.get('titanic').content)
+    print(ds.get("titanic").content)
 
     # 欠損処理・性別/乗船した港のコード変換等いくつかの処理をチェーンするサンプル
     if True:
@@ -63,8 +62,7 @@ if __name__ == '__main__':
         ds = SexToCode().main(ds)
         ds = EmbarkedToCode().main(ds)
     else:
-        ds = ds.apply(FillNaMedian("Age")).apply(
-            SexToCode()).apply(EmbarkedToCode())
+        ds = ds.apply(FillNaMedian("Age")).apply(SexToCode()).apply(EmbarkedToCode())
 
     print("## Processed data")
-    print(ds.get('titanic').content)
+    print(ds.get("titanic").content)

@@ -14,7 +14,7 @@ class DataSet:
     def get(self, name: str) -> Data:
         return self.data[name]
 
-    def merge(self, ds: 'DataSet'):
+    def merge(self, ds: "DataSet"):
         for k, v in ds.data.items():
             self.data[k] = v
 
@@ -23,5 +23,5 @@ class DataSet:
             logger.debug(f"save dataset[{k}]...")
             v.save()
 
-    def apply(self, task) -> 'DataSet':
+    def apply(self, task) -> "DataSet":
         return task.main(self)

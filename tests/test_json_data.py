@@ -13,14 +13,10 @@ class TestLocalFileRepository(unittest.TestCase):
             "str": "str",
             "number": 42,
             "array": ["a", "r", "r", "a", "y"],
-            "object": {
-                "key": "key",
-                "value": "value"
-            },
+            "object": {"key": "key", "value": "value"},
         }
 
-        tmp_path = Path(tempfile.gettempdir()) / \
-            Path(next(tempfile._get_candidate_names()))
+        tmp_path = Path(tempfile.gettempdir()) / Path(next(tempfile._get_candidate_names()))
         repo = LocalFileRepository(tmp_path)
         data = JsonData(repo, test_data)
         data.save()
@@ -31,7 +27,7 @@ class TestLocalFileRepository(unittest.TestCase):
         # read
         rdata = JsonData.load(repo)
         self.assertTrue(isinstance(rdata.content, dict))
-        self.assertEqual("str", rdata.content['str'])
-        self.assertEqual(42, rdata.content['number'])
-        self.assertEqual("a", rdata.content['array'][0])
-        self.assertEqual("key", rdata.content['object']['key'])
+        self.assertEqual("str", rdata.content["str"])
+        self.assertEqual(42, rdata.content["number"])
+        self.assertEqual("a", rdata.content["array"][0])
+        self.assertEqual("key", rdata.content["object"]["key"])

@@ -9,14 +9,12 @@ import tempfile
 
 class TestLocalFileRepository(unittest.TestCase):
     def test_raw(self):
-        repo = LocalFileRepository(
-            Path(os.path.dirname(__file__)) / Path('titanic.csv'))
+        repo = LocalFileRepository(Path(os.path.dirname(__file__)) / Path("titanic.csv"))
 
         data = RawData.load(repo)
         self.assertIsNotNone(data)
 
-        tmp_path = Path(tempfile.gettempdir()) / \
-            Path(next(tempfile._get_candidate_names()))
+        tmp_path = Path(tempfile.gettempdir()) / Path(next(tempfile._get_candidate_names()))
         repo = LocalFileRepository(tmp_path)
         data.repository = repo
         data.save()
@@ -25,13 +23,11 @@ class TestLocalFileRepository(unittest.TestCase):
         self.assertTrue(tmp_path.is_file())
 
     def test_dataframe(self):
-        repo = LocalFileRepository(
-            Path(os.path.dirname(__file__)) / Path('titanic.csv'))
+        repo = LocalFileRepository(Path(os.path.dirname(__file__)) / Path("titanic.csv"))
 
         data = DataFrameData.load(repo)
 
-        tmp_path = Path(tempfile.gettempdir()) / \
-            Path(next(tempfile._get_candidate_names()))
+        tmp_path = Path(tempfile.gettempdir()) / Path(next(tempfile._get_candidate_names()))
         repo = LocalFileRepository(tmp_path)
         data.repository = repo
         data.save()

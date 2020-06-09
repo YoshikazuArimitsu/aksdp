@@ -25,8 +25,7 @@ class SqlAlchemyRepository(Repository):
         if data.data_type == DataType.SQLALCHEMY_MODEL:
             self.commit()
         else:
-            raise ValueError(
-                'SqlAlchemyRepository.save() not support DataType {data.data_type}')
+            raise ValueError("SqlAlchemyRepository.save() not support DataType {data.data_type}")
 
     def query(self, model_class):
         return self.session.query(model_class)

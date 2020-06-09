@@ -21,29 +21,25 @@ class S3FileRepository(LocalFileRepository):
         self.path = Path(self.tempdir.name) / Path(o.path).name
         self.s3_url = url
         self.s3_bucket = o.netloc
-        self.s3_key = o.path.lstrip('/')
+        self.s3_key = o.path.lstrip("/")
 
-        logger.debug(f"setup S3FileRepository... tempdir={self.tempdir.name}, path={str(self.path)}, s3_bucket={self.s3_bucket}"
-                     f" s3_key={self.s3_key}")
+        logger.debug(
+            f"setup S3FileRepository... tempdir={self.tempdir.name}, path={str(self.path)}, s3_bucket={self.s3_bucket}"
+            f" s3_key={self.s3_key}"
+        )
 
-        self.s3client = boto3.Session(
-            aws_access_key_id=access_key_id,
-            aws_secret_access_key=secret_access_key,
-        ).client('s3')
+        self.s3client = boto3.Session(aws_access_key_id=access_key_id, aws_secret_access_key=secret_access_key,).client(
+            "s3"
+        )
 
     def load(self, ctor):
         logger.debug(f"s3 download {self.s3_url} -> {self.path.resolve()}")
-        with open(self.path.resolve(), 'wb') as f:
-            self.s3client.download_fileobj(self.s3_bucket,
-                                           self.s3_key, f)
+        with open(self.path.resolve(), "wb") as f:
+            self.s3client.download_fileobj(self.s3_bucket, self.s3_key, f)
         return super().load(ctor)
 
     def save(self, data: Data):
         super().save(data)
 
         logger.debug(f"s3 upload {str(self.path.resolve())} -> {self.s3_url}")
-        self.s3client.upload_file(
-            str(self.path.resolve()),
-            self.s3_bucket,
-            self.s3_key
-        )
+        self.s3client.upload_file(str(self.path.resolve()), self.s3_bucket, self.s3_key)

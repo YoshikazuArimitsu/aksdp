@@ -2,6 +2,7 @@ from data.data import Data, DataType
 import pandas as pd
 
 from logging import getLogger
+
 logger = getLogger(__name__)
 
 
@@ -17,8 +18,7 @@ class SqlAlchemyModelData(Data):
 
         df = pd.DataFrame(columns=columns)
         for r in self.content:
-            series_data = [getattr(r, c.name)
-                           for c in self.model_class.__table__.columns]
+            series_data = [getattr(r, c.name) for c in self.model_class.__table__.columns]
             series = pd.Series(series_data, index=df.columns)
             df = df.append(series, ignore_index=True)
 
@@ -49,8 +49,7 @@ class SqlAlchemyModelData(Data):
                 self.repository.delete(m)
 
         # 増えた分をINSERT
-        append_models = list(
-            map(lambda x: self.repository.insert(x), append_entities))
+        append_models = list(map(lambda x: self.repository.insert(x), append_entities))
         self.content.extend(append_models)
 
     def query(self, qf=None):

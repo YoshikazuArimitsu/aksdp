@@ -9,7 +9,7 @@ from dataset.dataset import DataSet
 from data.dataframe_data import DataFrameData
 from repository.localfile_repository import LocalFileRepository
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import (Column, Float, Integer, String)
+from sqlalchemy import Column, Float, Integer, String
 
 logger = getLogger(__name__)
 
@@ -17,7 +17,7 @@ Base = declarative_base()
 
 
 class Titanic(Base):
-    __tablename__ = 'titanic'
+    __tablename__ = "titanic"
 
     PassengerId = Column(Integer, primary_key=True)
     Survived = Column(Integer)
@@ -38,25 +38,25 @@ class SexToCode(Task):
     """
 
     def main(self, ds):
-        df = ds.get('titanic').to_dataframe()
+        df = ds.get("titanic").to_dataframe()
 
         df["Sex"][df["Sex"] == "male"] = 0
         df["Sex"][df["Sex"] == "female"] = 1
 
-        ds.get('titanic').update_dataframe(df)
+        ds.get("titanic").update_dataframe(df)
         return ds
 
 
 class EmbarkedToCode(Task):
     def main(self, ds):
-        df = ds.get('titanic').to_dataframe()
+        df = ds.get("titanic").to_dataframe()
 
         df["Embarked"] = df["Embarked"].fillna("S")
         df["Embarked"][df["Embarked"] == "S"] = 0
         df["Embarked"][df["Embarked"] == "C"] = 1
         df["Embarked"][df["Embarked"] == "Q"] = 2
 
-        ds.get('titanic').update_dataframe(df)
+        ds.get("titanic").update_dataframe(df)
         return ds
 
 
@@ -64,8 +64,7 @@ def prepare_db(engine):
     Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
 
-    repo = LocalFileRepository(
-        Path(os.path.dirname(__file__)) / Path('../titanic.csv'))
+    repo = LocalFileRepository(Path(os.path.dirname(__file__)) / Path("../titanic.csv"))
     titanic_data = DataFrameData.load(repo)
 
     repo_s = SqlAlchemyRepository(engine)
@@ -75,15 +74,16 @@ def prepare_db(engine):
     md.save()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     basicConfig(level=DEBUG)
 
     # データセットの読み込み・DBの準備
-    engine = create_engine('sqlite:///example.sqlite3', echo=True)
+    engine = create_engine("sqlite:///example.sqlite3", echo=True)
     prepare_db(engine)
 
     repo = SqlAlchemyRepository(engine)
     d = SqlAlchemyModelData(repo, Titanic)
+
     d.query()
     passenger_ids = [m.PassengerId for m in d.content]
 
@@ -92,8 +92,7 @@ if __name__ == '__main__':
         d.query(lambda x: x.filter(Titanic.PassengerId == passenger_id))
 
         ds = DataSet()
-        ds.put('titanic', d)
-
+        ds.put("titanic", d)
         ds = SexToCode().main(ds)
         ds = EmbarkedToCode().main(ds)
         ds.save_all()

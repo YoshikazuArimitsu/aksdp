@@ -9,14 +9,13 @@ import os
 
 class TestPandasDbRepository(unittest.TestCase):
     def setUp(self):
-        self.engine = create_engine('sqlite:///ut.sqlite3', echo=False)
+        self.engine = create_engine("sqlite:///ut.sqlite3", echo=False)
 
     def test_dataframe(self):
-        repo = LocalFileRepository(
-            Path(os.path.dirname(__file__)) / Path('titanic.csv'))
+        repo = LocalFileRepository(Path(os.path.dirname(__file__)) / Path("titanic.csv"))
         data = DataFrameData.load(repo)
 
-        db_repo = PandasDbRepository(self.engine, 'titanic')
+        db_repo = PandasDbRepository(self.engine, "titanic")
 
         dfd = DataFrameData(db_repo, data.content)
         dfd.save()

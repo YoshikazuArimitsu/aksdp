@@ -16,7 +16,7 @@ class TaskStatus(Enum):
 
 
 class GraphTask:
-    def __init__(self, task: Task, dependencies: List['GraphTask']):
+    def __init__(self, task: Task, dependencies: List["GraphTask"]):
         self.task = task
         self.dependencies = dependencies
         self.status = TaskStatus.INIT
@@ -37,12 +37,10 @@ class GraphTask:
             self.status = TaskStatus.RUNNING
             self.output_ds = self.task.main(ds)
 
-            logger.debug(
-                f"task({self.task.__class__.__name__}) completed.")
+            logger.debug(f"task({self.task.__class__.__name__}) completed.")
             self.status = TaskStatus.COMPLETED
         except BaseException as e:
-            logger.error(
-                f"task({self.task.__class__.__name__}) failed. {str(e)}")
+            logger.error(f"task({self.task.__class__.__name__}) failed. {str(e)}")
             self.status = TaskStatus.ERROR
             raise
         return self.output_ds
@@ -114,6 +112,7 @@ class ConcurrentGraph(Graph):
 
             while all_feature_running(features):
                 import time
+
                 time.sleep(0.1)
 
             # 終了した features の result を吸い上げ、features を更新

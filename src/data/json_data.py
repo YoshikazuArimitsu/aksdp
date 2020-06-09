@@ -18,7 +18,7 @@ class JsonData(Data):
 
     @classmethod
     def create_from_json(cls, repository, raw_data):
-        sio = StringIO(raw_data.decode('utf-8'))
+        sio = StringIO(raw_data.decode("utf-8"))
         content = json.load(sio)
         return JsonData(repository, content)
 
