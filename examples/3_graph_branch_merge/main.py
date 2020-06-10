@@ -1,11 +1,17 @@
-from logging import getLogger, basicConfig, DEBUG
+import argparse
 import os
+import random
+import sys
+import time
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+from logging import DEBUG, basicConfig, getLogger
 from pathlib import Path
-from aksdp.graph import Graph, ConcurrentGraph
-from aksdp.task import Task
-from aksdp.dataset import DataSet
+
 from aksdp.data import DataFrameData
+from aksdp.dataset import DataSet
+from aksdp.graph import ConcurrentGraph, Graph
 from aksdp.repository import LocalFileRepository
+from aksdp.task import Task
 from aksdp.util import PlantUML
 
 logger = getLogger(__name__)
@@ -38,6 +44,8 @@ class FillNaMedian(Task):
 
         rds = DataSet()
         rds.put(f"fillna_{self.column}", DataFrameData(None, df[self.column]))
+
+        time.sleep(random.randint(3, 10))
         return rds
 
 
@@ -58,6 +66,8 @@ class SexToCode(Task):
 
         rds = DataSet()
         rds.put("sex_to_code", DataFrameData(None, df["Sex"]))
+
+        time.sleep(random.randint(3, 10))
         return rds
 
 
@@ -77,6 +87,8 @@ class EmbarkedToCode(Task):
 
         rds = DataSet()
         rds.put("embarked_to_code", DataFrameData(None, df["Embarked"]))
+
+        time.sleep(random.randint(3, 10))
         return rds
 
 
@@ -100,11 +112,34 @@ class Merge(Task):
 if __name__ == "__main__":
     basicConfig(level=DEBUG)
 
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-g", "--graph", type=str, default="normal", help="Graph {normal/thread/process}")
+    args = parser.parse_args()
+
+    if args.graph == "normal":
+        graph = Graph()
+        logger.info("use Graph")
+    elif args.graph == "thread":
+        graph = ConcurrentGraph(ThreadPoolExecutor())
+        logger.info("use ConcurrentGraph(ThreadPoolExecutor)")
+    elif args.graph == "process":
+        graph = ConcurrentGraph(ProcessPoolExecutor())
+        logger.info("use ConcurrentGraph(ProcessPoolExecutor)")
+    else:
+        logger.error("unknown graph,")
+        sys.exit(-1)
+
     # データセットの読み込み
     ds = DataSet()
     repo = LocalFileRepository(Path(os.path.dirname(__file__)) / Path("../titanic.csv"))
     titanic_data = DataFrameData.load(repo)
     ds.put("titanic", titanic_data)
+
+    import pickle
+    import io
+
+    bio = io.BytesIO()
+    pickle.dump(ds, bio)
 
     #
     print("## Original data")
@@ -112,7 +147,6 @@ if __name__ == "__main__":
 
     # Graphで処理する
     # Age欠損埋め・性別のコード化・乗船した港のコード化 を順不同で実行してマージ
-    graph = Graph()
 
     passthrough = graph.append(PassThrough())
     fill_age = graph.append(FillNaMedian("Age"))
@@ -126,4 +160,4 @@ if __name__ == "__main__":
     print("## Processed data")
     print(ds.get("titanic").content)
 
-    print(f"PlantUML Diagram : {PlantUML.graph_to_url(graph)}")
+    print(f"PlantUML Diagraph : {PlantUML.graph_to_url(graph)}")

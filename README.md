@@ -152,7 +152,8 @@ graph.run(ds)
 
 ##### ConcurrentGraph
 
-マルチスレッド対応の Graphサンプルです。使用は自己責任で。
+TaskPoolExecutor/ProcessPoolExecutor により依存関係の無いタスクを並列で実行する Graph です。  
+Task側も並列実行される可能性を念頭に実装しないとバグります。使用は自己責任で。
 
 ##### エラーハンドラ
 
@@ -207,16 +208,12 @@ CSVから DataFrame にデータを読み込み、Taskを定義して幾つか�
 
 #### 3_graph_branch_merge
 
-Graph を利用し、1つの DataFrame を更新するのではなく各タスクごとに独自の出力を作成し、最後にマージするサンプルです
-
-##### 3.5_graph_concurrent
-
-3_graph_branch_merge を ConcurrengGraph を使用して実行します。
+Graph を利用し、1つの DataFrame を更新するのではなく各タスクごとに独自の出力を作成し、最後にマージするサンプルです。  
+-g オプションで通常のGraph, 並列実行(Thread/Process) を切り替えられます。
 
 #### 4_sqlalchemy_model_sequential
 
 SQLAlchemyのモデルから一行ずつ読み込んで DataSet を作成し、行ごとに処理してDBに書き戻しを行うサンプルです。
-
 
 ## 備考
 

@@ -20,6 +20,7 @@ class GraphTask:
         self.task = task
         self.dependencies = dependencies
         self.status = TaskStatus.INIT
+        self.input_ds = None
         self.output_ds = None
 
     def is_runnable(self) -> bool:
@@ -33,18 +34,16 @@ class GraphTask:
 
     def run(self, ds: DataSet) -> DataSet:
         try:
+            self.input_ds = ds
             logger.debug(f"task({self.task.__class__.__name__}) started.")
             logger.debug(f"  input_ds = {str(ds)}")
-            self.status = TaskStatus.RUNNING
             output_ds = self.task.gmain(ds)
 
             logger.debug(f"task({self.task.__class__.__name__}) completed.")
             logger.debug(f"  output_ds = {str(output_ds)}")
-            self.status = TaskStatus.COMPLETED
             self.output_ds = output_ds
         except BaseException as e:
             logger.error(f"task({self.task.__class__.__name__}) failed. {str(e)}")
-            self.status = TaskStatus.ERROR
             raise
         return self.output_ds
 
@@ -68,8 +67,12 @@ class Graph:
 
     def _run(self, graph_task, input_ds):
         try:
-            return graph_task.run(input_ds)
+            graph_task.status = TaskStatus.RUNNING
+            r = graph_task.run(input_ds)
+            graph_task.status = TaskStatus.COMPLETED
+            return r
         except BaseException as e:
+            graph_task.status = TaskStatus.ERROR
             for eh in self.error_handlers:
                 if isinstance(e, eh[0]):
                     self.abort = True
