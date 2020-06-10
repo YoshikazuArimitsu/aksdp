@@ -15,11 +15,20 @@ class PlantUML:
         dependencies = []
         for g in graph.graph:
             _to = g.task.__class__.__name__
+            _to_datakeys = g.task.input_datakeys()
+
             if g.dependencies:
                 for t in g.dependencies:
                     _from = t.task.__class__.__name__
+                    _from_datakeys = t.task.output_datakeys()
 
-                    dependencies.append(f"{_from} --> {_to}")
+                    # I/Oの datakey が宣言されていれば注釈追加
+                    datakeys = list(set(_to_datakeys) & set(_from_datakeys))
+                    datamemo = ""
+                    if datakeys:
+                        datamemo = f" : {','.join(datakeys)}"
+
+                    dependencies.append(f"{_from} --> {_to}{datamemo}")
 
         _components = "\n".join(components)
         _dependencies = "\n".join(dependencies)

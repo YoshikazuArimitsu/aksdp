@@ -8,11 +8,15 @@ from aksdp.task import Task
 from aksdp.dataset import DataSet
 from aksdp.data import DataFrameData
 from aksdp.repository import LocalFileRepository
+from aksdp.util import PlantUML
 
 logger = getLogger(__name__)
 
 
 class PassThrough(Task):
+    def output_datakeys(self):
+        return ["titanic"]
+
     def main(self, ds):
         return ds
 
@@ -23,6 +27,12 @@ class FillNaMedian(Task):
 
     def __init__(self, column):
         self.column = column
+
+    def input_datakeys(self):
+        return ["titanic"]
+
+    def output_datakeys(self):
+        return [f"fillna_{self.column}"]
 
     def main(self, ds):
         df = ds.get("titanic").content
@@ -39,6 +49,12 @@ class SexToCode(Task):
     """性別をcodeに変換するTask
     """
 
+    def input_datakeys(self):
+        return ["titanic"]
+
+    def output_datakeys(self):
+        return ["sex_to_code"]
+
     def main(self, ds):
         df = ds.get("titanic").content
         df["Sex"][df["Sex"] == "male"] = 0
@@ -52,6 +68,12 @@ class SexToCode(Task):
 
 
 class EmbarkedToCode(Task):
+    def input_datakeys(self):
+        return ["titanic"]
+
+    def output_datakeys(self):
+        return ["embarked_to_code"]
+
     def main(self, ds):
         df = ds.get("titanic").content
         df["Embarked"] = df["Embarked"].fillna("S")
@@ -67,6 +89,9 @@ class EmbarkedToCode(Task):
 
 
 class Merge(Task):
+    def input_datakeys(self):
+        return ["titanic", "fillna_Age", "sex_to_code", "embarked_to_code"]
+
     def main(self, ds):
         df = ds.get("titanic").content
 
@@ -108,3 +133,5 @@ if __name__ == "__main__":
 
     print("## Processed data")
     print(ds.get("titanic").content)
+
+    print(f"PlantUML Diagraph : {PlantUML.graph_to_url(graph)}")

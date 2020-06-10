@@ -176,6 +176,11 @@ print(PlantUML.graph_to_url(graph))
 
 util.PlantUML を使用するとタスクの依存関係を PlantUML のグラフ化したURLを生成します。
 
+Task.input_datakeys(), output_datakeys() に Taskが入出力に使用するキーを書いておくと、グラフ化時に可視化されます。
+
+![こんな感じ](http://www.plantuml.com/plantuml/png/ut8eBaaiAYdDpU6A3aWiBWx9ACelJS-8vOfsoyp9yKlqJKt9JCm3SeDJAqBodVDJKe5irzoanABir1IuW6zgKJgGHZ90GLVNJW4ih62bK99PafYNcSo5R2IAWZIWH5vYl6DwAXVS7XG5nQaLyINvySb0SIvKsr6KfKAbu6eTKlDIG7u300=)
+
+
 ### SQLAlchemyモデルの使用
 
 #### モデルのクエリ

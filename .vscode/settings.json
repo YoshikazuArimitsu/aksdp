@@ -1,6 +1,7 @@
 {
     "recommendations": [
         "ms-python.python",
+        "njpwerner.autodocstring",
         "yarimit.directory-configuration-generator"
     ],
     "python.pythonPath": "/opt/python/latest/bin/python",
