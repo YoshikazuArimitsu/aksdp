@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from setuptools import setup
 
-packages = ["aksdp", "aksdp.data", "aksdp.dataset", "aksdp.graph", "aksdp.repository", "aksdp.task"]
+packages = ["aksdp", "aksdp.data", "aksdp.dataset", "aksdp.graph", "aksdp.repository", "aksdp.task", "aksdp.util"]
 
 package_data = {"": ["*"]}
 

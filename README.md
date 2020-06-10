@@ -156,7 +156,7 @@ graph.run(ds)
 
 ##### エラーハンドラ
 
-```
+```python
 def value_error_handler(e, ds):
    print(str(e))
    print(str(ds))
@@ -167,6 +167,14 @@ g.add_error_handler(ValueError, value_error_handler)
 
 add_error_handler() で例外発生時に呼び出される関数を追加できます。  
 第1引数には発生した例外オブジェクト、第2引数にはエラーを起こした Task の入力DataSetが渡ります。
+
+##### グラフの可視化
+
+```python
+print(PlantUML.graph_to_url(graph))
+```
+
+util.PlantUML を使用するとタスクの依存関係を PlantUML のグラフ化したURLを生成します。
 
 ### SQLAlchemyモデルの使用
 
