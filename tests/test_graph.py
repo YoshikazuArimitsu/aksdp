@@ -50,8 +50,8 @@ class TestGraph(unittest.TestCase):
             global hook_called
             hook_called += 1
 
-        gt.post_run_hook = hook
         gt.pre_run_hook = hook
+        gt.post_run_hook = hook
         g.run()
 
         self.assertEqual(2, hook_called)

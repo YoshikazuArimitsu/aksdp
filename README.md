@@ -17,11 +17,11 @@ workspace/
 │  ├─ dataset/ ....................... 
 │  ├─ graph/ ......................... 
 │  ├─ repository/ .................... 
-│  └─ task/ .......................... 
+│  ├─ task/ .......................... 
+│  └─ util/ .......................... 
 ├─ examples/ ......................... 
 │  ├─ 1_basic_data_process/ .......... 基本的なデータ処理のサンプル
 │  ├─ 2_graph_serial/ ................ Graphを使って複数Task を繋げるサンプル
-│  ├─ 3.5_graph_concurrent/ .......... Graph並列実行のサンプル
 │  ├─ 3_graph_branch_merge/ .......... GraphでTaskの依存関係が分岐・合流するサンプル
 │  └─ 4_sqlalchemy_model_sequential/ . SQLAlchemy を利用したレコードごとの順次処理を行うサンプル
 └─ tests/ ............................ UT
@@ -181,6 +181,23 @@ Task.input_datakeys(), output_datakeys() に Taskが入出力に使用するキ�
 
 ![こんな感じ](http://www.plantuml.com/plantuml/png/ut8eBaaiAYdDpU6A3aWiBWx9ACelJS-8vOfsoyp9yKlqJKt9JCm3SeDJAqBodVDJKe5irzoanABir1IuW6zgKJgGHZ90GLVNJW4ih62bK99PafYNcSo5R2IAWZIWH5vYl6DwAXVS7XG5nQaLyINvySb0SIvKsr6KfKAbu6eTKlDIG7u300=)
 
+##### フック
+
+```python
+def pre_run(ds:DataSet):
+   with open("ds.pkl", "wb") as f:
+      pickle.dump(ds, f)
+
+graph = Graph()
+
+taskA = graph.append(~)
+taskA.pre_run_hook = pre_run
+taskA.post_run_hook = post_run
+```
+
+Graph.append() で追加した GraphTask の pre_run_hook, post_run_hook に関数をセットしておくと、
+タスクの開始時、完了時にフック関数をコールバックします。
+それぞれ入力・出力の DataSet が渡ってくるのでデバッグ等に利用できます。
 
 ### SQLAlchemyモデルの使用
 

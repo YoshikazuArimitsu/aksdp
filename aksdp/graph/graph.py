@@ -2,7 +2,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from logging import getLogger
 from aksdp.task import Task
 from aksdp.dataset import DataSet
-from typing import List
+from typing import List, Callable
 from enum import Enum
 
 logger = getLogger(__name__)
@@ -15,17 +15,64 @@ class TaskStatus(Enum):
     ERROR = 3
 
 
-class GraphTask:
+class GraphTask(object):
     def __init__(self, task: Task, dependencies: List["GraphTask"]):
+        """.ctor
+
+        Args:
+            task (Task): 実行タスク
+            dependencies (List): 依存タスク
+        """
         self.task = task
         self.dependencies = dependencies
         self.status = TaskStatus.INIT
         self.input_ds = None
         self.output_ds = None
-        self.pre_run_hook = self.empty_hook
-        self.post_run_hook = self.empty_hook
+        self._pre_run_hook = self.empty_hook
+        self._post_run_hook = self.empty_hook
+
+    @property
+    def pre_run_hook(self) -> Callable:
+        """実行前フックの取得
+
+        Returns:
+            Callable: 実行前フック関数
+        """
+        return self._pre_run_hook
+
+    @pre_run_hook.setter
+    def pre_run_hook(self, v: Callable):
+        """実行前フックの設定
+
+        Args:
+            v (Callable): 実行前フック関数
+        """
+        self._pre_run_hook = v
+
+    @property
+    def post_run_hook(self) -> Callable:
+        """実行後フックの取得
+
+        Returns:
+            Callable: 実行後フック関数
+        """
+        return self._post_run_hook
+
+    @post_run_hook.setter
+    def post_run_hook(self, v: Callable):
+        """実行後フックの設定
+
+        Args:
+            v (Callable): 実行後フック関数
+        """
+        self._post_run_hook = v
 
     def empty_hook(self, ds: DataSet):
+        """デフォルトの空フック
+
+        Args:
+            ds (DataSet): データセット
+        """
         pass
 
     def is_runnable(self) -> bool:
