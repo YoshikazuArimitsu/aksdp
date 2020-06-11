@@ -22,6 +22,11 @@ class GraphTask:
         self.status = TaskStatus.INIT
         self.input_ds = None
         self.output_ds = None
+        self.pre_run_hook = self.empty_hook
+        self.post_run_hook = self.empty_hook
+
+    def empty_hook(self, ds: DataSet):
+        pass
 
     def is_runnable(self) -> bool:
         if self.status != TaskStatus.INIT:
@@ -37,7 +42,9 @@ class GraphTask:
             self.input_ds = ds
             logger.debug(f"task({self.task.__class__.__name__}) started.")
             logger.debug(f"  input_ds = {str(ds)}")
+            self.pre_run_hook(ds)
             output_ds = self.task.gmain(ds)
+            self.post_run_hook(ds)
 
             logger.debug(f"task({self.task.__class__.__name__}) completed.")
             logger.debug(f"  output_ds = {str(output_ds)}")

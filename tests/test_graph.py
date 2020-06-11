@@ -13,6 +13,14 @@ class ErrorTask(Task):
         raise ValueError("ValueError")
 
 
+class DumbTask(Task):
+    def main(self, ds):
+        return ds
+
+
+hook_called = 0
+
+
 class TestGraph(unittest.TestCase):
     def test_no_handler(self):
         g = Graph()
@@ -30,3 +38,20 @@ class TestGraph(unittest.TestCase):
         g.append(ErrorTask())
         g.add_error_handler(ValueError, value_error_handler)
         g.run()
+
+    def test_hook(self):
+        g = Graph()
+        gt = g.append(DumbTask())
+
+        global hook_called
+        hook_called = 0
+
+        def hook(ds):
+            global hook_called
+            hook_called += 1
+
+        gt.post_run_hook = hook
+        gt.pre_run_hook = hook
+        g.run()
+
+        self.assertEqual(2, hook_called)
