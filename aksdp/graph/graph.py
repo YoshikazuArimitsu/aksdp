@@ -72,13 +72,18 @@ class Graph:
             graph_task.status = TaskStatus.COMPLETED
             return r
         except BaseException as e:
-            graph_task.status = TaskStatus.ERROR
-            for eh in self.error_handlers:
-                if isinstance(e, eh[0]):
-                    self.abort = True
-                    eh[1](e, input_ds)
-                    return None
-            raise
+            if not self._handle_error(graph_task, input_ds, e):
+                raise
+
+    def _handle_error(self, graph_task: GraphTask, input_ds: DataSet, e: BaseException):
+        graph_task.status = TaskStatus.ERROR
+        for eh in self.error_handlers:
+            if isinstance(e, eh[0]):
+                self.abort = True
+                eh[1](e, input_ds)
+                return True
+
+        return False
 
     def _make_task_inputs(self, graph_task):
         if not graph_task.dependencies:

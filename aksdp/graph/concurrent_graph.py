@@ -36,10 +36,6 @@ class ConcurrentGraph(Graph):
             for t in tasks:
                 input_ds = self._make_task_inputs(t)
                 input_ds = ds if input_ds is None else input_ds
-
-                # タスク内でステータスを変える場合、実際に動き出す前に
-                # 再度回ってきて起動する事があるので外部から変更する
-                t.status = TaskStatus.RUNNING
                 features.append((t, self._run(t, input_ds)))
 
             # どれかの Feature が終わるまで待つ
@@ -58,13 +54,8 @@ class ConcurrentGraph(Graph):
                         last_ds = f[0].output_ds = f[1].result()
                         f[0].status = TaskStatus.COMPLETED
                     except BaseException as e:
-                        f[0].status = TaskStatus.ERROR
-                        for eh in self.error_handlers:
-                            if isinstance(e, eh[0]):
-                                self.abort = True
-                                eh[1](e, f[0].input_ds)
-                                return None
-                        raise
+                        if not self._handle_error(f[0], f[0].input_ds, e):
+                            raise
                 else:
                     _next_featrues.append(f)
             features = _next_featrues
