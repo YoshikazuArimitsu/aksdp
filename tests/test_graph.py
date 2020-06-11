@@ -18,6 +18,44 @@ class DumbTask(Task):
         return ds
 
 
+class TaskA(Task):
+    def output_datakeys(self):
+        return ["DataA"]
+
+    def main(self, ds):
+        return ds
+
+
+class TaskB(Task):
+    def output_datakeys(self):
+        return ["DataB"]
+
+    def main(self, ds):
+        return ds
+
+
+class TaskC(Task):
+    def input_datakeys(self):
+        return ["DataA", "DataB"]
+
+    def output_datakeys(self):
+        return ["DataC"]
+
+    def main(self, ds):
+        return ds
+
+
+class TaskD(Task):
+    def input_datakeys(self):
+        return ["DataA", "DataB"]
+
+    def output_datakeys(self):
+        return ["DataA"]
+
+    def main(self, ds):
+        return ds
+
+
 hook_called = 0
 
 
@@ -55,3 +93,22 @@ class TestGraph(unittest.TestCase):
         g.run()
 
         self.assertEqual(2, hook_called)
+
+    def test_auto_resolver(self):
+        g = Graph()
+        g.append(TaskA())
+        g.append(TaskB())
+        taskC = g.append(TaskC())
+        g.autoresolve_dependencies()
+
+        self.assertEqual(2, len(taskC.dependencies))
+
+    def test_auto_resolver_error(self):
+        g = Graph()
+        g.append(TaskA())
+        g.append(TaskB())
+        g.append(TaskC())
+        g.append(TaskD())
+
+        with self.assertRaises(ValueError):
+            g.autoresolve_dependencies()

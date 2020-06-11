@@ -9,10 +9,10 @@ Python でデータ処理パイプラインを開発する為のテンプレー�
 <!-- DIRSTRUCTURE_START_MARKER -->
 <pre>
 workspace/
-├─ README.md ......................... README
+├─ README.md ......................... このファイル
 ├─ poetry.lock ....................... 
 ├─ pyproject.toml .................... 
-├─ aksdp/ ............................ 
+├─ aksdp/ ............................ ソースコード
 │  ├─ data/ .......................... 
 │  ├─ dataset/ ....................... 
 │  ├─ graph/ ......................... 
@@ -110,17 +110,29 @@ DataSet.save_all() を呼び出すと所有するデータを全て保存する�
 
 ```python
 class xxx(Task):
+   def input_datakeys(self) -> tp.List[str]:
+      return ['titanic']
+
+   def output_datakeys(self) -> tp.List[str]:
+      return ['output_data']
+
    def main(self, ds:DataSet):
       df = ds.get('titanic').content
 
       ～ 何かの処理 ～
 
-      return ds
+      rds = DataSet()
+      rds.put('output_data', ~)
+      return rds
 ```
 
 DataSet を入力し、DataSet を出力するデータ処理の最小単位。  
-Taskクラスを継承して main() にデータの処理を実装する。
+Taskクラスを継承して main() にデータの処理を実装します。
 
+##### input_datakeys, output_datakeys
+
+DataSet のうち、Taskが使用/出力する Data のキーが分かっている場合は input_datakeys, output_datakeys に定義しておくことができます。  
+正しく定義しておくとグラフの依存を自動で組んだり PlantUML の図に注釈が入ります。
 
 #### Graph
 
@@ -180,6 +192,40 @@ util.PlantUML を使用するとタスクの依存関係を PlantUML のグラ�
 Task.input_datakeys(), output_datakeys() に Taskが入出力に使用するキーを書いておくと、グラフ化時に可視化されます。
 
 ![こんな感じ](http://www.plantuml.com/plantuml/png/ut8eBaaiAYdDpU6A3aWiBWx9ACelJS-8vOfsoyp9yKlqJKt9JCm3SeDJAqBodVDJKe5irzoanABir1IuW6zgKJgGHZ90GLVNJW4ih62bK99PafYNcSo5R2IAWZIWH5vYl6DwAXVS7XG5nQaLyINvySb0SIvKsr6KfKAbu6eTKlDIG7u300=)
+
+##### グラフの自動解決
+
+```python
+class 処理A(Task):
+   def output_datakeys(self):
+      return ["dataA"]
+   ...
+
+class 処理B(Task):
+   def output_datakeys(self):
+      return ["dataB"]
+   ...
+
+class 処理C(Task):
+   def input_datakeys(self):
+      return ["dataA", "dataB"]
+   ...
+
+
+graph = Graph()
+taskA = graph.append(処理A())
+taskB = graph.append(処理B())
+taskC = graph.append(処理C())
+graph.autoresolve_dependencies()   # taskC の依存が [taskA, taskB] に設定される
+graph.run()
+```
+
+Task.input_datakeys(), output_datakeys() に Task が入出力に使用するキーが書かれている場合、
+graph.autoresolve_dependencies() を呼び出すと自動で依存関係を解決し、設定します。
+
+Task の input_datakeys() に書かれているキーを output_datakeys() に書いてある Task に依存を設定するもので、
+同キーに対しそれを出力する Task が複数見つかった場合失敗します。
+
 
 ##### フック
 

@@ -84,7 +84,7 @@ class GraphTask(object):
 
         return all([gt.status == TaskStatus.COMPLETED for gt in self.dependencies])
 
-    def run(self, ds: DataSet) -> DataSet:
+    def run(self, ds: DataSet = None) -> DataSet:
         try:
             self.input_ds = ds
             logger.debug(f"task({self.task.__class__.__name__}) started.")
@@ -161,3 +161,33 @@ class Graph:
 
     def is_all_completed(self) -> bool:
         return all([gt.status == TaskStatus.COMPLETED for gt in self.graph])
+
+    def autoresolve_dependencies(self):
+        """グラフ依存関係の自動解決
+        """
+        logger.info("run task dependencies auto resolver...")
+
+        def _find_datakey_provider(key: str) -> List[GraphTask]:
+            return [gt for gt in self.graph if key in gt.task.output_datakeys()]
+
+        for gt in self.graph:
+            deps = set()
+            for ik in gt.task.input_datakeys():
+                prv = _find_datakey_provider(ik)
+                prv_str = ",".join([gt.task.__class__.__name__ for gt in prv])
+
+                if len(prv) > 1:
+                    msg = f"data({ik}) provide from multiple task({prv_str})"
+                    logger.error(msg)
+                    raise ValueError(msg)
+
+                if len(prv) == 0:
+                    msg = f"task provide data({ik}) not found."
+                    logger.info(msg)
+
+                logger.debug(f"{gt.task.__class__.__name__} : depend on {prv[0].task.__class__.__name__} by data({ik})")
+                deps.add(prv[0])
+
+            gt.dependencies = list(deps)
+
+        logger.info("task autoresolve completed.")
