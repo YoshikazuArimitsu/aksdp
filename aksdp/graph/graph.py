@@ -108,7 +108,7 @@ class Graph:
         self.error_handlers = []
         self.abort = False
 
-    def append(self, task: Task, dependencies: List[GraphTask] = None) -> GraphTask:
+    def append(self, task: Task, dependencies: List[GraphTask] = []) -> GraphTask:
         gt = GraphTask(task, dependencies)
         self.graph.append(gt)
         return gt
@@ -144,7 +144,7 @@ class Graph:
             return None
 
         ds = DataSet()
-        for d in reversed(graph_task.dependencies):
+        for d in graph_task.dependencies:
             ds.merge(d.output_ds)
         return ds
 

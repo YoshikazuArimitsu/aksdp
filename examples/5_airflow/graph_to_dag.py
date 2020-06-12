@@ -21,20 +21,6 @@ from datetime import datetime, timedelta
 logger = getLogger(__name__)
 
 
-default_args = {
-    "owner": "airflow",
-    "depends_on_past": False,
-    "start_date": datetime(2020, 6, 11),
-    "email": ["yoshikazu_arimitsu@albert2005.co.jp"],
-    "email_on_failure": False,
-    "email_on_retry": False,
-    "retries": 1,
-    "retry_delay": timedelta(minutes=5),
-}
-
-dag = DAG("graph_to_dag", default_args=default_args, schedule_interval=timedelta(1))
-
-
 class ReadCsv(Task):
     def output_datakeys(self):
         return ["titanic"]
@@ -132,14 +118,27 @@ class Merge(Task):
         return rds
 
 
+# DAG定義
+default_args = {
+    "owner": "airflow",
+    "depends_on_past": False,
+    "start_date": datetime(2020, 6, 11),
+    "email": ["yoshikazu_arimitsu@albert2005.co.jp"],
+    "email_on_failure": False,
+    "email_on_retry": False,
+    "retries": 1,
+    "retry_delay": timedelta(minutes=5),
+}
+dag = DAG("graph_to_dag", default_args=default_args, schedule_interval=None)
+
+# Graph作成
 graph = Graph()
 readcsv = graph.append(ReadCsv())
 fill_age = graph.append(FillNaMedian("Age"), [readcsv])
 sex_to_code = graph.append(SexToCode(), [readcsv])
 embarked_to_code = graph.append(EmbarkedToCode(), [readcsv])
-
 graph.append(Merge(), [readcsv, fill_age, sex_to_code, embarked_to_code])
 
-
+# Graphのタスクを AirFlowに登録
 af = AirFlow(graph)
-af.to_dag(graph)
+af.to_dag(dag)

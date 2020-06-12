@@ -259,6 +259,23 @@ SqlAlchemyModelData.to_dataframe() で読み込み済みのモデルを DataFram
 また、SqlAlchemyModelData.update_dataframe() に DataFrame を渡すと DataFrameの内容でモデルを更新します。
 DataFrame の行インデックスを参照し、モデルのリストに同番のモデルがあればそのモデルを更新、無ければ追加、削除等により行が抜けている場合はそのモデルを削除します。
 
+### AirFlow化
+
+```
+dag = DAG("dag", default_args=default_args, schedule_interval=None)
+
+graph = Graph()
+...
+
+af = AirFlow(graph)
+af.to_dag(dag)
+```
+
+util.Airflow を使用すると各Task を AirFlow向けにラップした PythonOperator を動的に生成し、AirFlow 上で実行できます。
+
+Task の入出力 DataSet は AirFlow の Xcoms により自動で受け渡しされます。
+
+
 ### examples
 
 #### 1_basic_data_process
@@ -277,6 +294,10 @@ Graph を利用し、1つの DataFrame を更新するのではなく各タス�
 #### 4_sqlalchemy_model_sequential
 
 SQLAlchemyのモデルから一行ずつ読み込んで DataSet を作成し、行ごとに処理してDBに書き戻しを行うサンプルです。
+
+#### 5_airflow
+
+Task を AirFlow の DAG に登録するサンプルです。
 
 ## 備考
 
