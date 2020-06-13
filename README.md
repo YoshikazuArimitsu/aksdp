@@ -31,7 +31,7 @@ graph = Graph()
 task_a = graph.append(TaskA())
 task_b = graph.append(TaskB(), [task_a])
 task_c = graph.append(TaskC(), [task_b])
-task_d = graph.append(TaskD(), [task_a, task_b])
+task_d = graph.append(TaskD(), [task_b, task_c])
 graph.run()
 
 ```
