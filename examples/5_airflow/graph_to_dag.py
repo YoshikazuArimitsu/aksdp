@@ -4,19 +4,18 @@ import random
 import sys
 import time
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+from datetime import datetime, timedelta
 from logging import DEBUG, basicConfig, getLogger
 from pathlib import Path
 
+from airflow import DAG
+from airflow.operators.bash_operator import BashOperator
 from aksdp.data import DataFrameData
 from aksdp.dataset import DataSet
 from aksdp.graph import Graph
 from aksdp.repository import LocalFileRepository
 from aksdp.task import Task
 from aksdp.util import AirFlow
-
-from airflow import DAG
-from airflow.operators.bash_operator import BashOperator
-from datetime import datetime, timedelta
 
 logger = getLogger(__name__)
 
@@ -52,7 +51,7 @@ class FillNaMedian(Task):
         df[self.column] = df[self.column].fillna(df[self.column].median())
 
         rds = DataSet()
-        rds.put(f"fillna_{self.column}", DataFrameData(None, df[self.column]))
+        rds.put(f"fillna_{self.column}", DataFrameData(df[self.column]))
 
         time.sleep(random.randint(3, 10))
         return rds
@@ -74,7 +73,7 @@ class SexToCode(Task):
         df["Sex"][df["Sex"] == "female"] = 1
 
         rds = DataSet()
-        rds.put("sex_to_code", DataFrameData(None, df["Sex"]))
+        rds.put("sex_to_code", DataFrameData(df["Sex"]))
 
         time.sleep(random.randint(3, 10))
         return rds
@@ -95,7 +94,7 @@ class EmbarkedToCode(Task):
         df["Embarked"][df["Embarked"] == "Q"] = 2
 
         rds = DataSet()
-        rds.put("embarked_to_code", DataFrameData(None, df["Embarked"]))
+        rds.put("embarked_to_code", DataFrameData(df["Embarked"]))
 
         time.sleep(random.randint(3, 10))
         return rds
@@ -114,7 +113,7 @@ class Merge(Task):
         df = df.join(ds.get("embarked_to_code").content)
 
         rds = DataSet()
-        rds.put("titanic", DataFrameData(None, df))
+        rds.put("titanic", DataFrameData(df))
         return rds
 
 

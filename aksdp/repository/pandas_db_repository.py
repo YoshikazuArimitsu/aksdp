@@ -23,4 +23,4 @@ class PandasDbRepository(Repository):
         sio = StringIO()
         df = pd.read_sql_table(self.table_name, self.engine)
         df.to_csv(sio, index=False)
-        return ctor(self, sio.getvalue().encode("utf-8"))
+        return ctor(sio.getvalue().encode("utf-8"), self)

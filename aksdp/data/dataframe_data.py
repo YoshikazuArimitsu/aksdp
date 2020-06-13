@@ -9,7 +9,7 @@ TRepository = TypeVar("Repository")
 
 
 class DataFrameData(Data):
-    def __init__(self, repository: TRepository, content: pd.DataFrame = None):
+    def __init__(self, content: pd.DataFrame, repository: TRepository = None):
         super().__init__(repository, DataType.DATAFRAME)
         self.content_ = content
 
@@ -18,14 +18,14 @@ class DataFrameData(Data):
         return repository.load(DataFrameData.create_from_csv)
 
     @classmethod
-    def create_from_csv(cls, repository: TRepository, raw_data) -> "DataFrameData":
+    def create_from_csv(cls, raw_data: bytes, repository: TRepository = None) -> "DataFrameData":
         sio = StringIO(raw_data.decode("utf-8"))
         df = pd.read_csv(sio)
-        return DataFrameData(repository, df)
+        return DataFrameData(df, repository)
 
     @classmethod
-    def create_from_df(cls, repository: TRepository, df) -> "DataFrameData":
-        return DataFrameData(repository, df)
+    def create_from_df(cls, df: pd.DataFrame, repository: TRepository = None) -> "DataFrameData":
+        return DataFrameData(df, repository)
 
     @property
     def content(self) -> pd.DataFrame:

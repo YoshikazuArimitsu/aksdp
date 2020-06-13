@@ -20,6 +20,9 @@ class FillNaMedian(Task):
     def main(self, ds):
         df = ds.get("titanic").content
         df[self.column] = df[self.column].fillna(df[self.column].median())
+
+        ds = DataSet()
+        ds.put("titanic", DataFrameData(df))
         return ds
 
 
@@ -29,8 +32,11 @@ class SexToCode(Task):
 
     def main(self, ds):
         df = ds.get("titanic").content
-        df["Sex"][df["Sex"] == "male"] = 0
-        df["Sex"][df["Sex"] == "female"] = 1
+        df.loc[df["Sex"] == "male", "Sex"] = 0
+        df.loc[df["Sex"] == "female", "Sex"] = 1
+
+        ds = DataSet()
+        ds.put("titanic", DataFrameData(df))
         return ds
 
 
@@ -38,9 +44,12 @@ class EmbarkedToCode(Task):
     def main(self, ds):
         df = ds.get("titanic").content
         df["Embarked"] = df["Embarked"].fillna("S")
-        df["Embarked"][df["Embarked"] == "S"] = 0
-        df["Embarked"][df["Embarked"] == "C"] = 1
-        df["Embarked"][df["Embarked"] == "Q"] = 2
+        df.loc[df["Embarked"] == "S", "Embarked"] = 0
+        df.loc[df["Embarked"] == "C", "Embarked"] = 1
+        df.loc[df["Embarked"] == "Q", "Embarked"] = 2
+
+        ds = DataSet()
+        ds.put("titanic", DataFrameData(df))
         return ds
 
 

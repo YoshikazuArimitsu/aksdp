@@ -25,4 +25,4 @@ class LocalFileRepository(Repository):
 
     def load(self, ctor):
         raw_data = self.path.read_bytes()
-        return ctor(self, raw_data)
+        return ctor(raw_data, self)

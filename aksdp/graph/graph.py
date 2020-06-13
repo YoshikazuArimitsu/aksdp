@@ -91,7 +91,7 @@ class GraphTask(object):
             logger.debug(f"  input_ds = {str(ds)}")
             self.pre_run_hook(ds)
             output_ds = self.task.gmain(ds)
-            self.post_run_hook(ds)
+            self.post_run_hook(output_ds)
 
             logger.debug(f"task({self.task.__class__.__name__}) completed.")
             logger.debug(f"  output_ds = {str(output_ds)}")

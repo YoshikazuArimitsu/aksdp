@@ -16,7 +16,7 @@ class TestPandasDbRepository(unittest.TestCase):
 
         db_repo = PandasDbRepository(self.engine, "titanic")
 
-        dfd = DataFrameData(db_repo, data.content)
+        dfd = DataFrameData(data.content, db_repo)
         dfd.save()
 
         dfd2 = DataFrameData.load(db_repo)

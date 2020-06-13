@@ -18,7 +18,7 @@ class TestLocalFileRepository(unittest.TestCase):
 
         tmp_path = Path(tempfile.gettempdir()) / Path(next(tempfile._get_candidate_names()))
         repo = LocalFileRepository(tmp_path)
-        data = JsonData(repo, test_data)
+        data = JsonData(test_data, repo)
         data.save()
 
         self.assertTrue(tmp_path.exists())

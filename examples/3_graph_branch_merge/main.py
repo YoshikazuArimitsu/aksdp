@@ -43,7 +43,7 @@ class FillNaMedian(Task):
         df[self.column] = df[self.column].fillna(df[self.column].median())
 
         rds = DataSet()
-        rds.put(f"fillna_{self.column}", DataFrameData(None, df[self.column]))
+        rds.put(f"fillna_{self.column}", DataFrameData(df[self.column]))
 
         time.sleep(random.randint(3, 10))
         return rds
@@ -61,11 +61,11 @@ class SexToCode(Task):
 
     def main(self, ds):
         df = ds.get("titanic").content
-        df["Sex"][df["Sex"] == "male"] = 0
-        df["Sex"][df["Sex"] == "female"] = 1
+        df.loc[df["Sex"] == "male", "Sex"] = 0
+        df.loc[df["Sex"] == "female", "Sex"] = 1
 
         rds = DataSet()
-        rds.put("sex_to_code", DataFrameData(None, df["Sex"]))
+        rds.put("sex_to_code", DataFrameData(df["Sex"]))
 
         time.sleep(random.randint(3, 10))
         return rds
@@ -81,12 +81,12 @@ class EmbarkedToCode(Task):
     def main(self, ds):
         df = ds.get("titanic").content
         df["Embarked"] = df["Embarked"].fillna("S")
-        df["Embarked"][df["Embarked"] == "S"] = 0
-        df["Embarked"][df["Embarked"] == "C"] = 1
-        df["Embarked"][df["Embarked"] == "Q"] = 2
+        df.loc[df["Embarked"] == "S", "Embarked"] = 0
+        df.loc[df["Embarked"] == "C", "Embarked"] = 1
+        df.loc[df["Embarked"] == "Q", "Embarked"] = 2
 
         rds = DataSet()
-        rds.put("embarked_to_code", DataFrameData(None, df["Embarked"]))
+        rds.put("embarked_to_code", DataFrameData(df["Embarked"]))
 
         time.sleep(random.randint(3, 10))
         return rds
@@ -105,7 +105,7 @@ class Merge(Task):
         df = df.join(ds.get("embarked_to_code").content)
 
         rds = DataSet()
-        rds.put("titanic", DataFrameData(None, df))
+        rds.put("titanic", DataFrameData(df))
         return rds
 
 
@@ -134,12 +134,6 @@ if __name__ == "__main__":
     repo = LocalFileRepository(Path(os.path.dirname(__file__)) / Path("../titanic.csv"))
     titanic_data = DataFrameData.load(repo)
     ds.put("titanic", titanic_data)
-
-    import pickle
-    import io
-
-    bio = io.BytesIO()
-    pickle.dump(ds, bio)
 
     #
     print("## Original data")

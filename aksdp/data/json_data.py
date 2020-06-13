@@ -9,7 +9,7 @@ TRepository = TypeVar("Repository")
 
 
 class JsonData(Data):
-    def __init__(self, repository: TRepository, content: dict):
+    def __init__(self, content: dict, repository: TRepository = None):
         super().__init__(repository, DataType.JSON)
         self.content_ = content
 
@@ -18,10 +18,10 @@ class JsonData(Data):
         return repository.load(JsonData.create_from_json)
 
     @classmethod
-    def create_from_json(cls, repository: TRepository, raw_data) -> "JsonData":
+    def create_from_json(cls, raw_data: bytes, repository: TRepository) -> "JsonData":
         sio = StringIO(raw_data.decode("utf-8"))
         content = json.load(sio)
-        return JsonData(repository, content)
+        return JsonData(content, repository)
 
     @property
     def content(self) -> dict:

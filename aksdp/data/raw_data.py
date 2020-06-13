@@ -7,7 +7,7 @@ TRepository = TypeVar("Repository")
 
 
 class RawData(Data):
-    def __init__(self, repository: TRepository, content: bytes = None):
+    def __init__(self, content: bytes, repository: TRepository = None):
         super().__init__(repository, DataType.RAW)
         self.content_ = content
 
@@ -16,8 +16,8 @@ class RawData(Data):
         return repository.load(RawData.create)
 
     @classmethod
-    def create(cls, repository, raw_data) -> "RawData":
-        return RawData(repository, raw_data)
+    def create(cls, raw_data: bytes, repository: TRepository = None) -> "RawData":
+        return RawData(raw_data, repository)
 
     @property
     def content(self) -> bytes:
