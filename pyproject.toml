@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "aksdp"
-version = "0.0.1-0"
+version = "0.0.1-1"
 description = "Simple DataPipeline Library"
 authors = ["Y.Arimitsu <yoshikazu_arimitsu@albert2005.co.jp>"]
 license = "MIT"

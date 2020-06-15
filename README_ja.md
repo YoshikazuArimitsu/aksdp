@@ -154,6 +154,7 @@ class xxx(Task):
 
    def main(self, ds:DataSet):
       df = ds.get('titanic').content
+      # df = self._in['titanic']  でも参照可能
 
       ～ 何かの処理 ～
 

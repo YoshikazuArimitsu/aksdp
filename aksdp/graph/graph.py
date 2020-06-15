@@ -93,7 +93,7 @@ class GraphTask(object):
             output_ds = self.task.gmain(ds)
             self.post_run_hook(output_ds)
 
-            logger.debug(f"task({self.task.__class__.__name__}) completed.")
+            logger.debug(f"task({self.task.__class__.__name__}) completed. (elapse={self.task.elapsed_time:.3f}s)")
             logger.debug(f"  output_ds = {str(output_ds)}")
             self.output_ds = output_ds
         except BaseException as e:
