@@ -116,12 +116,13 @@ class GraphTask(object):
 
 
 class Graph:
-    def __init__(self):
+    def __init__(self, catalog_ds: DataSet = None):
         """.ctor
         """
         self.graph = []
         self.error_handlers = []
         self.abort = False
+        self.catalog_ds = catalog_ds
 
     def append(self, task: Task, dependencies: List[GraphTask] = []) -> GraphTask:
         """Taskの追加
@@ -190,21 +191,24 @@ class Graph:
 
         return False
 
-    def _make_task_inputs(self, graph_task: GraphTask) -> DataSet:
+    def _make_task_inputs(self, graph_task: GraphTask, default_ds: DataSet) -> DataSet:
         """タスクの入力DataSet作成
 
         Args:
             graph_task (Task): GraphTask
+            default_ds (DataSet): デフォルトDataSet
 
         Returns:
             DataSet: 入力DataSet
         """
-        if not graph_task.dependencies:
-            return None
-
         ds = DataSet()
-        for d in graph_task.dependencies:
-            ds.merge(d.output_ds)
+        ds.merge(self.catalog_ds)
+
+        if not graph_task.dependencies:
+            ds.merge(default_ds)
+        else:
+            for d in graph_task.dependencies:
+                ds.merge(d.output_ds)
         return ds
 
     def run(self, ds: DataSet = None) -> DataSet:
@@ -212,8 +216,7 @@ class Graph:
         while self.runnable_tasks() and self.abort is False:
             t = self.runnable_tasks()[0]
 
-            input_ds = self._make_task_inputs(t)
-            input_ds = ds if input_ds is None else input_ds
+            input_ds = self._make_task_inputs(t, ds)
 
             last_ds = self._run(t, input_ds)
         return last_ds
@@ -240,7 +243,8 @@ class Graph:
                     logger.error(msg)
                     raise ValueError(msg)
 
-                if len(prv) == 0:
+                if len(prv) == 0 and ik not in self.catalog_ds.keys():
+                    # input を提供するタスクが無く、カタログにも同キーが無い場合はエラー
                     msg = f"task provide data({ik}) not found."
                     logger.info(msg)
 

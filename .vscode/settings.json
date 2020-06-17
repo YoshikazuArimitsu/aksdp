@@ -4,7 +4,7 @@
         "njpwerner.autodocstring",
         "yarimit.directory-configuration-generator"
     ],
-    "python.pythonPath": "/opt/python/latest/bin/python",
+    "python.pythonPath": "/home/ubuntu/virtualenv/bin/python",
     "python.envFile": "${workspaceFolder}/.env",
     "python.formatting.provider": "black",
     "python.linting.enabled": true,

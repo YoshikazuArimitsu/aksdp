@@ -1,4 +1,5 @@
 from aksdp.data import JsonData
+from aksdp.dataset import DataSet
 from aksdp.repository import LocalFileRepository
 from aksdp.task import Task
 from aksdp.graph import Graph
@@ -23,7 +24,7 @@ class TaskA(Task):
         return ["DataA"]
 
     def main(self, ds):
-        return ds
+        return DataSet().put("DataA", JsonData({}))
 
 
 class TaskB(Task):
@@ -31,7 +32,7 @@ class TaskB(Task):
         return ["DataB"]
 
     def main(self, ds):
-        return ds
+        return DataSet().put("DataB", JsonData({}))
 
 
 class TaskC(Task):
@@ -42,7 +43,7 @@ class TaskC(Task):
         return ["DataC"]
 
     def main(self, ds):
-        return ds
+        return DataSet().put("DataC", JsonData({}))
 
 
 class TaskD(Task):
@@ -112,3 +113,29 @@ class TestGraph(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             g.autoresolve_dependencies()
+
+    def test_catalog_ds(self):
+        class TestTask(Task):
+            def main(self, ds: DataSet):
+                if "catalog" not in ds.keys():
+                    raise ValueError()
+                return DataSet()
+
+        catalog_ds = DataSet().put("catalog", JsonData({}))
+        g = Graph(catalog_ds=catalog_ds)
+        g.append(TestTask())
+
+        g.run()
+
+    def test_default_ds(self):
+        class TestTask(Task):
+            def main(self, ds: DataSet):
+                if "default" not in ds.keys():
+                    raise ValueError()
+                return DataSet()
+
+        #
+        default_ds = DataSet().put("default", JsonData({}))
+        g = Graph()
+        g.append(TestTask())
+        g.run(default_ds)

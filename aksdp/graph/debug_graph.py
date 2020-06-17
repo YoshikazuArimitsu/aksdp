@@ -1,5 +1,6 @@
 from aksdp.graph import Graph
 from aksdp.data import DataType
+from aksdp.dataset import DataSet
 from aksdp.repository import LocalFileRepository
 from pathlib import Path
 from logging import getLogger
@@ -14,8 +15,8 @@ class DebugGraph(Graph):
     """全タスクに実行前/後フックを差し込んで入出力を保存するGraph
     """
 
-    def __init__(self, base_dir: Path):
-        super().__init__()
+    def __init__(self, base_dir: Path, catalog_ds: DataSet = DataSet()):
+        super().__init__(catalog_ds)
         logger.info(f"set up DebugGraph, base_dir={base_dir.name}")
         self.base_dir = base_dir
         shutil.rmtree(self.base_dir.resolve(), ignore_errors=True)

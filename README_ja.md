@@ -173,10 +173,14 @@ DataSet のうち、Taskが使用/出力する Data のキーが分かってい�
 
 #### Graph
 
-Graph を作成し、複数の Task を投入して依存関係を設定する事で実行可能な Task から順に実行する。  
+Graph を作成し、複数の Task を投入して依存関係を設定する事で実行可能な Task から順に実行されます。
+Task への入力DataSetは以下 DataSet を動的にキー単位でマージして作成します。
 
-依存先が無い Task には Graph.run() に渡した DataSet が入力として使用される。  
-他の Task に依存している Task には依存Taskが出力として返した DataSet をマージした DataSet が入力として使用される。
+1. 上流 Task の出力 DataSet
+2. Default DataSet  
+   上流 Task が存在しない Task には Graph.run() の引数として与えた DataSet が入力に使用されます
+3. Catalog DataSet
+   Graph のコンストラクタで catalog_ds として指定した DataSet は全ての Task の入力に使用されます
 
 ```python
 class 処理A(Task):
@@ -191,12 +195,12 @@ class 処理C(Task):
 class 処理D(Task):
    ...
 
-graph = Graph()
-taskA = graph.append(処理A())                   # 依存なし。graph.run() に指定した DataSet がINPUT
-taskB = graph.append(処理B())                   # 依存なし。graph.run() に指定した DataSet がINPUT
-taskC = graph.append(処理C(), [taskA])          # taskAに依存。taskAの出力した DataSet がINPUT
-taskD = graph.append(処理D(), [taskB, taskC])   # taskB, taskCに依存。taskB&Cの出力した DataSet をマージしたものがINPUT
-graph.run(ds)
+graph = Graph(catalog_ds)
+taskA = graph.append(処理A())                   # default_ds + catalog_ds がINPUT
+taskB = graph.append(処理B())                   # default_ds + catalog_ds がINPUT
+taskC = graph.append(処理C(), [taskA])          # taskA の出力DS + catalog_ds がINPUT
+taskD = graph.append(処理D(), [taskB, taskC])   # taskB&C の出力DS + catalog_ds がINPUT
+graph.run(default_ds)
 ```
 
 ### examples

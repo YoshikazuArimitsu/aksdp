@@ -9,8 +9,9 @@ class DataSet:
     def __init__(self):
         self.data = {}
 
-    def put(self, name: str, d: Data):
+    def put(self, name: str, d: Data) -> "DataSet":
         self.data[name] = d
+        return self
 
     def get(self, name: str) -> Data:
         return self.data[name]
@@ -18,9 +19,11 @@ class DataSet:
     def keys(self) -> List[str]:
         return self.data.keys()
 
-    def merge(self, ds: "DataSet"):
-        for k, v in ds.data.items():
-            self.data[k] = v
+    def merge(self, ds: "DataSet") -> "DataSet":
+        if ds:
+            for k, v in ds.data.items():
+                self.data[k] = v
+        return self
 
     def save_all(self):
         for k, v in self.data.items():

@@ -13,8 +13,8 @@ logger = getLogger(__name__)
 
 
 class ConcurrentGraph(Graph):
-    def __init__(self, executor=None):
-        super().__init__()
+    def __init__(self, executor=None, catalog_ds: DataSet = DataSet()):
+        super().__init__(catalog_ds)
 
         self.pool = executor
         if self.pool is None:
@@ -34,8 +34,7 @@ class ConcurrentGraph(Graph):
             tasks = self.runnable_tasks()
 
             for t in tasks:
-                input_ds = self._make_task_inputs(t)
-                input_ds = ds if input_ds is None else input_ds
+                input_ds = self._make_task_inputs(t, ds)
                 features.append((t, self._run(t, input_ds)))
 
             # どれかの Feature が終わるまで待つ
