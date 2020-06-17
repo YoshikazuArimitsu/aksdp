@@ -1,128 +1,21 @@
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from logging import getLogger
 from aksdp.task import Task
 from aksdp.dataset import DataSet
 from typing import List, Callable
-from enum import Enum
+from .graph_task import GraphTask, TaskStatus
 
 logger = getLogger(__name__)
 
 
-class TaskStatus(Enum):
-    INIT = 0
-    RUNNING = 1
-    COMPLETED = 2
-    ERROR = 3
-
-
-class GraphTask(object):
-    def __init__(self, task: Task, dependencies: List["GraphTask"]):
-        """.ctor
-
-        Args:
-            task (Task): 実行タスク
-            dependencies (List): 依存タスク
-        """
-        self.task = task
-        self.dependencies = dependencies
-        self.status = TaskStatus.INIT
-        self.input_ds = None
-        self.output_ds = None
-        self._pre_run_hook = self.empty_hook
-        self._post_run_hook = self.empty_hook
-
-    @property
-    def pre_run_hook(self) -> Callable:
-        """実行前フックの取得
-
-        Returns:
-            Callable: 実行前フック関数
-        """
-        return self._pre_run_hook
-
-    @pre_run_hook.setter
-    def pre_run_hook(self, v: Callable):
-        """実行前フックの設定
-
-        Args:
-            v (Callable): 実行前フック関数
-        """
-        self._pre_run_hook = v
-
-    @property
-    def post_run_hook(self) -> Callable:
-        """実行後フックの取得
-
-        Returns:
-            Callable: 実行後フック関数
-        """
-        return self._post_run_hook
-
-    @post_run_hook.setter
-    def post_run_hook(self, v: Callable):
-        """実行後フックの設定
-
-        Args:
-            v (Callable): 実行後フック関数
-        """
-        self._post_run_hook = v
-
-    def empty_hook(self, ds: DataSet):
-        """デフォルトの空フック
-
-        Args:
-            ds (DataSet): データセット
-        """
-        pass
-
-    def is_runnable(self) -> bool:
-        """実行中かどうか
-
-        Returns:
-            bool: 実行中
-        """
-        if self.status != TaskStatus.INIT:
-            return False
-
-        if self.dependencies is None:
-            return True
-
-        return all([gt.status == TaskStatus.COMPLETED for gt in self.dependencies])
-
-    def run(self, ds: DataSet = None) -> DataSet:
-        """タスク実行
-
-        Args:
-            ds (DataSet, optional): 入力DataSet. Defaults to None.
-
-        Returns:
-            DataSet: 出力DataSet
-        """
-        try:
-            self.input_ds = ds
-            logger.debug(f"task({self.task.__class__.__name__}) started.")
-            logger.debug(f"  input_ds = {str(ds)}")
-            self.pre_run_hook(ds)
-            output_ds = self.task.gmain(ds)
-            self.post_run_hook(output_ds)
-
-            logger.debug(f"task({self.task.__class__.__name__}) completed. (elapse={self.task.elapsed_time:.3f}s)")
-            logger.debug(f"  output_ds = {str(output_ds)}")
-            self.output_ds = output_ds
-        except BaseException as e:
-            logger.error(f"task({self.task.__class__.__name__}) failed. {str(e)}")
-            raise
-        return self.output_ds
-
-
 class Graph:
-    def __init__(self, catalog_ds: DataSet = None):
+    def __init__(self, catalog_ds: DataSet = None, disable_dynamic_dep: bool = False):
         """.ctor
         """
         self.graph = []
         self.error_handlers = []
         self.abort = False
-        self.catalog_ds = catalog_ds
+        self.catalog_ds = catalog_ds if catalog_ds else DataSet()
+        self.disable_dynamic_dep = disable_dynamic_dep
 
     def append(self, task: Task, dependencies: List[GraphTask] = []) -> GraphTask:
         """Taskの追加
@@ -146,9 +39,6 @@ class Graph:
             fn (function): エラーハンドラのCallable
         """
         self.error_handlers.append((cls, fn))
-
-    def runnable_tasks(self) -> List[GraphTask]:
-        return [g for g in self.graph if g.is_runnable()]
 
     def _run(self, graph_task: GraphTask, input_ds: DataSet) -> DataSet:
         """タスクの起動
@@ -213,16 +103,57 @@ class Graph:
 
     def run(self, ds: DataSet = None) -> DataSet:
         last_ds = ds
-        while self.runnable_tasks() and self.abort is False:
+        self.abort = False
+
+        while not self.abort:
+            if not self.runnable_tasks():
+                break
+
             t = self.runnable_tasks()[0]
 
             input_ds = self._make_task_inputs(t, ds)
-
             last_ds = self._run(t, input_ds)
+
         return last_ds
 
-    def is_all_completed(self) -> bool:
-        return all([gt.status == TaskStatus.COMPLETED for gt in self.graph])
+    def runnable_tasks(self) -> List[GraphTask]:
+        """実行可能タスクの取得
+
+        Returns:
+            List[GraphTask]: 実行可能タスク
+        """
+        if self.disable_dynamic_dep:
+            # 動的依存解決無効
+            return [g for g in self.graph if g.is_runnable()]
+
+        # 動的依存解決
+        runnable_tasks = []
+        init_tasks = [g for g in self.graph if g.status == TaskStatus.INIT]
+        completed_tasks = [g for g in self.graph if g.status == TaskStatus.COMPLETED]
+
+        def _find_datakey_provider(key: str) -> List[GraphTask]:
+            return [gt for gt in completed_tasks if key in gt.task.output_datakeys()]
+
+        for gt in init_tasks:
+            deps = set()
+            for ik in gt.task.input_datakeys():
+                if ik in self.catalog_ds.keys():
+                    continue
+
+                prv = _find_datakey_provider(ik)
+
+                if len(prv) != 1:
+                    logger.debug(f"data({ik}) provide from {len(prv)} tasks.")
+                    break
+
+                deps.add(prv[0])
+            else:
+                gt.dependencies_dynamic = list(deps)
+
+                if gt.is_runnable():
+                    runnable_tasks.append(gt)
+
+        return runnable_tasks
 
     def autoresolve_dependencies(self):
         """グラフ依存関係の自動解決
@@ -251,6 +182,6 @@ class Graph:
                 logger.debug(f"{gt.task.__class__.__name__} : depend on {prv[0].task.__class__.__name__} by data({ik})")
                 deps.add(prv[0])
 
-            gt.dependencies = list(deps)
+            gt.dependencies_dynamic = list(deps)
 
         logger.info("task autoresolve completed.")

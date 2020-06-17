@@ -1,12 +1,8 @@
 from aksdp.data import JsonData
 from aksdp.dataset import DataSet
-from aksdp.repository import LocalFileRepository
 from aksdp.task import Task
-from aksdp.graph import Graph
+from aksdp.graph import Graph, TaskStatus
 import unittest
-from pathlib import Path
-import os
-import tempfile
 
 
 class ErrorTask(Task):
@@ -139,3 +135,39 @@ class TestGraph(unittest.TestCase):
         g = Graph()
         g.append(TestTask())
         g.run(default_ds)
+
+    def test_dynamic_graph(self):
+        class DynTaskA(Task):
+            def __init__(self):
+                self._output_datakeys = []
+
+            def output_datakeys(self):
+                return self._output_datakeys
+
+            def main(self, ds: DataSet):
+                self._output_datakeys = ["DynTaskA"]
+                return DataSet()
+
+        class DynTaskB(Task):
+            def input_datakeys(self):
+                return ["DynTaskA"]
+
+            def main(self, ds: DataSet):
+                return DataSet()
+
+        class DynTaskC(Task):
+            def input_datakeys(self):
+                return ["DynTaskX"]
+
+            def main(self, ds: DataSet):
+                return DataSet()
+
+        #
+        g = Graph()
+        g.append(DynTaskA())
+        gtb = g.append(DynTaskB())
+        gtc = g.append(DynTaskC())
+        g.run()
+
+        self.assertEqual(TaskStatus.COMPLETED, gtb.status)
+        self.assertEqual(TaskStatus.INIT, gtc.status)

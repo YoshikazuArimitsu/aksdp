@@ -265,36 +265,62 @@ Task.input_datakeys(), output_datakeys() に Taskが入出力に使用するキ�
 #### グラフの自動解決
 
 ```python
-class 処理A(Task):
+class TaskA(Task):
    def output_datakeys(self):
       return ["dataA"]
    ...
 
-class 処理B(Task):
+class TaskB(Task):
    def output_datakeys(self):
       return ["dataB"]
    ...
 
-class 処理C(Task):
+class TaskC(Task):
    def input_datakeys(self):
       return ["dataA", "dataB"]
    ...
 
 
 graph = Graph()
-taskA = graph.append(処理A())
-taskB = graph.append(処理B())
-taskC = graph.append(処理C())
-graph.autoresolve_dependencies()   # taskC の依存が [taskA, taskB] に設定される
-graph.run()
+taskA = graph.append(TaskA())
+taskB = graph.append(TaskB())
+taskC = graph.append(TaskC())
+graph.run()   # A&B -> C の順で実行
 ```
 
 Task.input_datakeys(), output_datakeys() に Task が入出力に使用するキーが書かれている場合、
-graph.autoresolve_dependencies() を呼び出すと自動で依存関係を解決し、設定します。
+依存タスクを明示的に指定せずとも自動で依存関係を解決し、設定します。
 
-Task の input_datakeys() に書かれているキーを output_datakeys() に書いてある Task に依存を設定するもので、
-同キーに対しそれを出力する Task が複数見つかった場合失敗します。
+#### グラフの動的解決
 
+```python
+class TaskA(Task):
+   def output_datakeys(self):
+      return self._output_datakeys
+
+   def main(self, ds:DataSet):
+      rds = DataSet()
+      if {条件A}:
+         self._output_datakeys = ["DataA-1"]
+         rds.put("DataA-1", 〜)
+      else:
+         self._output_datakeys = ["DataA-2"]
+         rds.put("DataA-2", 〜)
+      return rds
+
+class TaskB(Task):
+   def input_datakeys(self):
+      return ["DataA-1"]
+   ...
+
+class TaskC(Task):
+   def input_datakeys(self):
+      return ["DataA-2"]
+   ...
+```
+
+上記のように output_datakeys() は条件によって切り替える事が可能です。
+TaskA の実行完了時に有効になった output_datakeys によって TaskB or TaskC のどちらかが実行されます。
 
 #### フック
 

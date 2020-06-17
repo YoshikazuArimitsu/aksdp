@@ -1,10 +1,7 @@
 from concurrent.futures import ThreadPoolExecutor
 from logging import getLogger
-from aksdp.task import Task
-from aksdp.dataset import DataSet
 from aksdp.graph import Graph, TaskStatus
-from typing import List
-from enum import Enum
+from aksdp.dataset import DataSet
 import time
 from .graph import GraphTask
 
@@ -28,9 +25,11 @@ class ConcurrentGraph(Graph):
 
     def run(self, ds: DataSet = None):
         last_ds = ds
+        self.abort = False
         features = []
+        self.update_dependencies()
 
-        while self.is_all_completed() is False and self.abort is False:
+        while not self.abort:
             tasks = self.runnable_tasks()
 
             for t in tasks:
@@ -58,5 +57,8 @@ class ConcurrentGraph(Graph):
                 else:
                     _next_featrues.append(f)
             features = _next_featrues
+
+            if not features and not self.runnable_tasks():
+                logger.info("no runnables tasks, exit")
 
         return last_ds

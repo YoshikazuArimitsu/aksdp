@@ -4,13 +4,13 @@
         "njpwerner.autodocstring",
         "yarimit.directory-configuration-generator"
     ],
-    "python.pythonPath": "/home/ubuntu/virtualenv/bin/python",
+    "python.pythonPath": "/opt/python/latest/bin/python",
     "python.envFile": "${workspaceFolder}/.env",
     "python.formatting.provider": "black",
     "python.linting.enabled": true,
     "python.linting.flake8Enabled": true,
     "python.linting.flake8Args": [
-        "--ignore=E501,F401"
+        "--ignore=E501"
     ],
     "python.linting.pylintEnabled": false,
     "python.testing.pytestArgs": [
