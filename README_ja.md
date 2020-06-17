@@ -230,6 +230,8 @@ Task を AirFlow の DAG に登録するサンプルです。
 TaskPoolExecutor/ProcessPoolExecutor により依存関係の無いタスクを並列で実行する Graph です。  
 Task側も並列実行される可能性を念頭に実装しないとバグります。使用は自己責任で。
 
+
+
 #### エラーハンドラ
 
 ```python
@@ -307,6 +309,34 @@ taskA.post_run_hook = post_run
 Graph.append() で追加した GraphTask の pre_run_hook, post_run_hook に関数をセットしておくと、
 タスクの開始時、完了時にフック関数をコールバックします。
 それぞれ入力・出力の DataSet が渡ってくるのでデバッグ等に利用できます。
+
+#### DebugGraph
+
+```python
+# graph = Graph()
+graph = DebugGraph(Path('./dump'))
+graph.append(TaskA())
+graph.append(TaskB())
+graph.run()
+```
+
+```bash
+$ tree ./dump
+./dump/
+├── TaskA
+│   ├── in
+│   │   └── TaskA.pkl
+│   └── out
+│       ├── TaskA.pkl
+│       ├── xxx.csv
+...
+└── TaskB
+    ├── in
+    └── out
+```
+
+フック機能を利用し、各タスクの入出力を全て指定ディレクトリ下に保存する Graph です。
+
 
 #### SQLAlchemyモデルの使用
 

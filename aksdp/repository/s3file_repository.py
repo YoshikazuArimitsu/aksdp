@@ -13,6 +13,7 @@ class S3FileRepository(LocalFileRepository):
     """S3上のファイルへのアクセス
     LocalFileの機能に読み込み・保存の前後にS3への転送を挟むだけ。
     """
+
     def __init__(self, access_key_id: str, secret_access_key: str, url: str):
         o = urlparse(url, allow_fragments=False)
 
@@ -43,13 +44,14 @@ class S3FileRepository(LocalFileRepository):
         super().save(data)
 
         logger.debug(f"s3 upload {str(self.path.resolve())} -> {self.s3_url}")
-        self.s3client.upload_file(str(self.path.resolve()), self.s3_bucket, self.s3_key,
-            ExtraArgs=self.upload_extra_args)
+        self.s3client.upload_file(
+            str(self.path.resolve()), self.s3_bucket, self.s3_key, ExtraArgs=self.upload_extra_args
+        )
 
     @property
     def upload_extra_args(self) -> dict:
         return self._upload_extra_args
-    
+
     @upload_extra_args.setter
-    def upload_extra_args(self, extra_args:dict):
+    def upload_extra_args(self, extra_args: dict):
         self._upload_extra_args = extra_args

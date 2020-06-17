@@ -3,6 +3,7 @@ from abc import ABCMeta, abstractmethod
 from typing import List
 import time
 
+
 class Task(metaclass=ABCMeta):
     def __init__(self):
         self._in = {}
@@ -20,7 +21,7 @@ class Task(metaclass=ABCMeta):
             for k in d.keys():
                 self._in[k] = d.get(k).content
 
-        # 実行    
+        # 実行
         start = time.time()
         r = self.main(d)
         self._elapsed_time = time.time() - start
