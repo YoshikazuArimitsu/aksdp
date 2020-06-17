@@ -76,6 +76,11 @@ class GraphTask(object):
         pass
 
     def is_runnable(self) -> bool:
+        """実行中かどうか
+
+        Returns:
+            bool: 実行中
+        """
         if self.status != TaskStatus.INIT:
             return False
 
@@ -85,6 +90,14 @@ class GraphTask(object):
         return all([gt.status == TaskStatus.COMPLETED for gt in self.dependencies])
 
     def run(self, ds: DataSet = None) -> DataSet:
+        """タスク実行
+
+        Args:
+            ds (DataSet, optional): 入力DataSet. Defaults to None.
+
+        Returns:
+            DataSet: 出力DataSet
+        """
         try:
             self.input_ds = ds
             logger.debug(f"task({self.task.__class__.__name__}) started.")
@@ -104,22 +117,49 @@ class GraphTask(object):
 
 class Graph:
     def __init__(self):
+        """.ctor
+        """
         self.graph = []
         self.error_handlers = []
         self.abort = False
 
     def append(self, task: Task, dependencies: List[GraphTask] = []) -> GraphTask:
+        """Taskの追加
+
+        Args:
+            task (Task): Taskインスタンス
+            dependencies (List[GraphTask], optional): 依存タスク. Defaults to [].
+
+        Returns:
+            GraphTask: GraphTask
+        """
         gt = GraphTask(task, dependencies)
         self.graph.append(gt)
         return gt
 
-    def add_error_handler(self, cls, fn):
+    def add_error_handler(self, cls, fn: Callable):
+        """エラーハンドラの追加
+
+        Args:
+            cls (class): 例外の型
+            fn (function): エラーハンドラのCallable
+        """
         self.error_handlers.append((cls, fn))
 
     def runnable_tasks(self) -> List[GraphTask]:
         return [g for g in self.graph if g.is_runnable()]
 
-    def _run(self, graph_task, input_ds):
+    def _run(self, graph_task: GraphTask, input_ds: DataSet) -> DataSet:
+        """タスクの起動
+
+        Args:
+            graph_task (GraphTask): 起動するタスク
+            input_ds (DataSet): 入力DataSet
+
+        Returns:
+            [DataSet]: 出力DataSet
+        """
+
         try:
             graph_task.status = TaskStatus.RUNNING
             r = graph_task.run(input_ds)
@@ -129,7 +169,18 @@ class Graph:
             if not self._handle_error(graph_task, input_ds, e):
                 raise
 
-    def _handle_error(self, graph_task: GraphTask, input_ds: DataSet, e: BaseException):
+    def _handle_error(self, graph_task: GraphTask, input_ds: DataSet, e: BaseException) -> bool:
+        """エラー時の処理。
+        対応するエラーハンドラが存在すればエラーハンドラ呼び出し
+
+        Args:
+            graph_task (GraphTask): エラーが発生したタスク
+            input_ds (DataSet): 入力データセット
+            e (BaseException): 例外インスタンス
+
+        Returns:
+            bool: エラーハンドリングしたかどうか
+        """
         graph_task.status = TaskStatus.ERROR
         for eh in self.error_handlers:
             if isinstance(e, eh[0]):
@@ -139,7 +190,15 @@ class Graph:
 
         return False
 
-    def _make_task_inputs(self, graph_task):
+    def _make_task_inputs(self, graph_task: GraphTask) -> DataSet:
+        """タスクの入力DataSet作成
+
+        Args:
+            graph_task (Task): GraphTask
+
+        Returns:
+            DataSet: 入力DataSet
+        """
         if not graph_task.dependencies:
             return None
 
