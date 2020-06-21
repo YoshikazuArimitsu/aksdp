@@ -52,10 +52,8 @@ class Graph:
         """
 
         try:
-            graph_task.status = TaskStatus.RUNNING
-            r = graph_task.run(input_ds)
-            graph_task.status = TaskStatus.COMPLETED
-            return r
+            rt = graph_task.run(input_ds)
+            return rt.output_ds
         except BaseException as e:
             if not self._handle_error(graph_task, input_ds, e):
                 raise

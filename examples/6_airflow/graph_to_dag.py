@@ -1,15 +1,11 @@
-import argparse
 import os
 import random
-import sys
 import time
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from datetime import datetime, timedelta
-from logging import DEBUG, basicConfig, getLogger
+from logging import getLogger
 from pathlib import Path
 
 from airflow import DAG
-from airflow.operators.bash_operator import BashOperator
 from aksdp.data import DataFrameData
 from aksdp.dataset import DataSet
 from aksdp.graph import Graph

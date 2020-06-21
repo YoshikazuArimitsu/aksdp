@@ -102,17 +102,18 @@ class GraphTask(object):
 
         return all([gt.status == TaskStatus.COMPLETED for gt in self.dependencies])
 
-    def run(self, ds: DataSet = None) -> DataSet:
+    def run(self, ds: DataSet = None) -> "GraphTask":
         """タスク実行
 
         Args:
             ds (DataSet, optional): 入力DataSet. Defaults to None.
 
         Returns:
-            DataSet: 出力DataSet
+            GraphTask: 実行後のGraphTask
         """
         try:
             self.input_ds = ds
+            self.status = TaskStatus.RUNNING
             logger.debug(f"task({self.task.__class__.__name__}) started.")
             logger.debug(f"  input_ds = {str(ds)}")
             self.pre_run_hook(ds)
@@ -122,7 +123,9 @@ class GraphTask(object):
             logger.debug(f"task({self.task.__class__.__name__}) completed. (elapse={self.task.elapsed_time:.3f}s)")
             logger.debug(f"  output_ds = {str(output_ds)}")
             self.output_ds = output_ds
+            self.status = TaskStatus.COMPLETED
         except BaseException as e:
             logger.error(f"task({self.task.__class__.__name__}) failed. {str(e)}")
+            self.status = TaskStatus.ERROR
             raise
-        return self.output_ds
+        return self
