@@ -2,3 +2,5 @@ __pycache__
 *.sqlite3
 aksdp.egg-info/
 dist/
+poetry.lock
+dump/

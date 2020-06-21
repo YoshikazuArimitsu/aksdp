@@ -141,7 +141,7 @@ class Graph:
                 prv = _find_datakey_provider(ik)
 
                 if len(prv) != 1:
-                    logger.debug(f"data({ik}) provide from {len(prv)} tasks.")
+                    # logger.debug(f"data({ik}) provide from {len(prv)} tasks.")
                     break
 
                 deps.add(prv[0])

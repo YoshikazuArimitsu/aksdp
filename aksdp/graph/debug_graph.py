@@ -1,4 +1,4 @@
-from aksdp.graph import Graph
+from aksdp.graph import Graph, GraphTask
 from aksdp.data import DataType
 from aksdp.dataset import DataSet
 from aksdp.repository import LocalFileRepository
@@ -19,13 +19,13 @@ class DebugGraph(Graph):
         super().__init__(catalog_ds)
         logger.info(f"set up DebugGraph, base_dir={base_dir.name}")
         self.base_dir = base_dir
-        shutil.rmtree(self.base_dir.resolve(), ignore_errors=True)
 
     @classmethod
     def save_ds_hook(cls, base_dir: Path, task_name: str):
-        os.makedirs(base_dir, exist_ok=True)
-
         def dump_dataset(_base_dir, _task_name, ds):
+            shutil.rmtree(_base_dir, ignore_errors=True)
+            os.makedirs(_base_dir, exist_ok=True)
+
             # pickle DataSet
             with open(_base_dir / f"{_task_name}.pkl", "wb") as f:
                 pickle.dump(ds, f)
@@ -64,3 +64,16 @@ class DebugGraph(Graph):
         gt.pre_run_hook = DebugGraph.save_ds_hook(self.base_dir / Path(cn) / "in", cn)
         gt.post_run_hook = DebugGraph.save_ds_hook(self.base_dir / Path(cn) / "out", cn)
         return gt
+
+    def run_task(self, gt: GraphTask):
+        cn = gt.task.__class__.__name__
+        path = self.base_dir / Path(cn) / "in" / f"{cn}.pkl"
+
+        try:
+            with open(path, "rb") as f:
+                pkl = pickle.load(f)
+        except BaseException as e:
+            logger.error(f"can't load pickle, {str(e)}")
+            return
+
+        return gt.task.gmain(pkl)

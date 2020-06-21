@@ -29,7 +29,7 @@ class GraphTask(object):
         self._pre_run_hook = self.empty_hook
         self._post_run_hook = self.empty_hook
 
-        self._dependencies_static = dependencies
+        self._dependencies_static = dependencies if dependencies else []
         self._dependencies_dynamic = []
 
     @property

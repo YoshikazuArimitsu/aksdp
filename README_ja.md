@@ -58,7 +58,7 @@ workspace/
 ### インストール
 
 ```
-$ pip install git+https://github.com/YoshikazuArimitsu/aksdp.git
+$ pip install aksdp
 ```
 
 ## QuickStart

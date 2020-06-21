@@ -7,7 +7,7 @@ A simple framework for writing data pipelines in Python
 ## INSTALL
 
 ```bash
-$ pip install git+https://github.com/YoshikazuArimitsu/aksdp.git
+$ pip install aksdp
 ```
 
 ## QuickStart
