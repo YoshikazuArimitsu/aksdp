@@ -5,10 +5,11 @@ import time
 
 
 class Task(metaclass=ABCMeta):
-    def __init__(self):
+    def __init__(self, params: dict = {}):
         """.ctor
         """
         self._in = {}
+        self._params = {}
         self._elapsed_time = None
 
     @abstractmethod
@@ -70,3 +71,7 @@ class Task(metaclass=ABCMeta):
             timedelta : 実行時間
         """
         return self._elapsed_time
+
+    @property
+    def params(self) -> dict:
+        return self._params if self._params else {}

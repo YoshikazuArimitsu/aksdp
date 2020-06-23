@@ -25,5 +25,14 @@
         "./tests",
         "-p",
         "test_*.py"
+    ],
+    "dirconfgen.exclude": [
+        "__pycache__",
+        ".*",
+        "dist",
+        "dump",
+        "*.csv",
+        "*.py",
+        "*.sqlite3"
     ]
 }
