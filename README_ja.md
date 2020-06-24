@@ -8,10 +8,11 @@ Python でデータパイプライン処理を記述する為のシンプルな�
 
 <!-- DIRSTRUCTURE_START_MARKER -->
 <pre>
-workspace/
+aksdp/
 ├─ LICENSE ........................... ライセンス情報
 ├─ README.md ......................... README(en)
 ├─ README_ja.md ...................... README(jp) このファイル
+├─ poetry.lock ....................... 
 ├─ pyproject.toml .................... 
 ├─ aksdp/ ............................ ソースコード
 │  ├─ data/ .......................... 
@@ -21,16 +22,15 @@ workspace/
 │  ├─ task/ .......................... 
 │  └─ util/ .......................... 
 ├─ examples/ ......................... 
-│  ├─ titanic.csv .................... 
 │  ├─ 1_basic_data_process/ .......... 基本的なデータ処理のサンプル
 │  ├─ 2_graph_serial/ ................ Graphを使って複数Task を繋げるサンプル
 │  ├─ 3_graph_branch_merge/ .......... GraphでTaskの依存関係が分岐・合流するサンプル
 │  ├─ 4_graph_dynamic/ ............... ouput_datakeys() の切り替えによる動的分岐のサンプル
 │  ├─ 5_sqlalchemy_model_sequential/ . SQLAlchemyのモデルをデータとして使用するサンプル
 │  ├─ 6_airflow/ ..................... task を airflow の DAG に変換するサンプル
-│  └─ 7_debug/ ....................... DebugGraphの使用例
+│  ├─ 7_debug/ ....................... DebugGraphの使用例
+│  └─ 8_graph_from_yaml/ ............. YAMLからGraphを構築するサンプル
 └─ tests/ ............................ UT
-   └─ titanic.csv .................... 
 </pre>
 <!-- DIRSTRUCTURE_END_MARKER -->
 
@@ -151,6 +151,9 @@ titanic_data = DataFrameData.load(repo)
 
 ```python
 class xxx(Task):
+   def __init__(self, params:dict):
+      super().__init__(params)
+
    def input_datakeys(self) -> tp.List[str]:
       return ['titanic']
 
@@ -170,6 +173,11 @@ class xxx(Task):
 
 DataSet を入力し、DataSet を出力するデータ処理の最小単位。  
 Taskクラスを継承して main() にデータの処理を実装します。
+
+##### params
+
+タスクの設定・パラメータ等を設定します。  
+Task.params プロパティに設定されます。初期化しなかった場合、{} になります。
 
 ##### input_datakeys, output_datakeys
 
@@ -237,13 +245,42 @@ Task を AirFlow の DAG に登録するサンプルです。
 
 ### その他高度な機能
 
+#### YAML/JSONからのグラフ構築
+
+```yaml
+graph:
+    class:  Graph
+
+tasks:
+  - name: taskA
+    class: main.TaskA
+    params:
+      string_param: string_value
+      int_param: 42
+  - name: taskB
+    class: main.TaskB
+    dependencies:
+      - taskA
+  ...
+```
+
+```python
+from aksdp.util import graph_factory as gf
+
+graph = gf.create_from_yaml(Path("graph.yml"))
+```
+
+graph_factory.create_from_yaml/create_from_json で設定ファイルからグラフを構築する事が可能です。
+
+tasks.name はそのタスクに依存するタスクの依存を記述する必要がある時以外は省略可能です。  
+tasks.dependencies にはタスクが依存するタスクの name を記述します。  
+task.class はクラスのパスです。import は自動で行います。  
+task.params はタスクのパラメータです。params下の dict がタスクのインスタンス生成時に渡ります。
 
 #### ConcurrentGraph
 
 TaskPoolExecutor/ProcessPoolExecutor により依存関係の無いタスクを並列で実行する Graph です。  
 Task側も並列実行される可能性を念頭に実装しないとバグります。使用は自己責任で。
-
-
 
 #### エラーハンドラ
 
@@ -352,11 +389,14 @@ Graph.append() で追加した GraphTask の pre_run_hook, post_run_hook に関�
 #### DebugGraph
 
 ```python
-# graph = Graph()
 graph = DebugGraph(Path('./dump'))
 graph.append(TaskA())
-graph.append(TaskB())
-graph.run()
+task_b = graph.append(TaskB())
+
+if run:
+   graph.run()
+else:
+   graph.run_task(task_b)
 ```
 
 ```bash
@@ -374,7 +414,8 @@ $ tree ./dump
     └── out
 ```
 
-フック機能を利用し、各タスクの入出力を全て指定ディレクトリ下に保存する Graph です。
+フック機能を利用し、run() の実行時に各タスクの入出力を全て指定ディレクトリ下に保存する Graph です。  
+また、run_task(task) を呼び出すと run() 時に生成した pkl から入力データを復元し、ワンショットでタスクを実行してデバッグする事が可能です。
 
 
 #### SQLAlchemyモデルの使用

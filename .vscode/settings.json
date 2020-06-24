@@ -31,8 +31,10 @@
         ".*",
         "dist",
         "dump",
+        "aksdp.egg-info",
         "*.csv",
         "*.py",
-        "*.sqlite3"
+        "*.sqlite3",
+        "*.yml"
     ]
 }

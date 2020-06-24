@@ -1,0 +1,22 @@
+graph:
+    class:  Graph
+
+tasks:
+  - name: taskA
+    class: main.TaskA
+    params:
+      string_param: string_value
+      int_param: 42
+  - name: taskB
+    class: main.TaskB
+    dependencies:
+      - taskA
+  - name: taskC
+    class: main.TaskC
+    dependencies:
+      - taskA
+  - class: main.TaskD
+    dependencies:
+      - taskB
+      - taskC
+    

@@ -19,7 +19,7 @@ class TaskB(Task):
 class TestGraphFactory(unittest.TestCase):
     def test_create_1(self):
         gd = {
-            "graph": {"class": "DebugGraph", "base_dir": "."},
+            "graph": {"class": "Graph", "base_dir": "."},
             "tasks": [
                 {"name": "taska", "class": "test_graph_factory.TaskA", "params": {"key": "value"}},
                 {
@@ -36,7 +36,7 @@ class TestGraphFactory(unittest.TestCase):
     def test_create_error_1(self):
         """依存を解決できないパターン"""
         gd = {
-            "graph": {"class": "DebugGraph", "base_dir": "."},
+            "graph": {"class": "Graph", "base_dir": "."},
             "tasks": [
                 {"name": "taska", "class": "test_graph_factory.TaskA", "params": {"key": "value"}},
                 {

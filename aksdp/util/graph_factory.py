@@ -99,11 +99,13 @@ def create_from_dict(config: dict) -> Graph:
 
 def create_from_yaml(path: Path) -> Graph:
     with open(path, "r") as f:
-        config = yaml.load(f)
+        logger.debug(f"create graph from {str(path)}")
+        config = yaml.load(f, Loader=yaml.FullLoader)
         return create_from_dict(config)
 
 
 def create_from_json(path: Path) -> Graph:
     with open(path, "r") as f:
+        logger.debug(f"create graph from {str(path)}")
         config = json.load(f)
         return create_from_dict(config)

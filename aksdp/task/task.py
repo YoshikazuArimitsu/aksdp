@@ -9,7 +9,7 @@ class Task(metaclass=ABCMeta):
         """.ctor
         """
         self._in = {}
-        self._params = {}
+        self._params = params
         self._elapsed_time = None
 
     @abstractmethod
