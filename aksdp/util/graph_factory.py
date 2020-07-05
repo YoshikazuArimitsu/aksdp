@@ -11,6 +11,8 @@ import importlib
 logger = getLogger(__name__)
 
 """
+includes:
+    - xxx.yaml
 graph:
     class: Graph/ConcurrentGraph/DebugGraph
     base_dir: DebugGraph only
@@ -96,16 +98,52 @@ def create_from_dict(config: dict) -> Graph:
     add_tasks_to_graph(graph, tasks)
     return graph
 
+def _load(path: Path) -> dict:
+    try:
+        with open(path, "r") as f:
+            try:
+                d = yaml.load(f, Loader=yaml.FullLoader)
+                return d
+            except:
+                d = json.load(f)
+                return d
+    except BaseException as ex:
+        logger.error(f"load failed, {str(ex)}")
+        raise
 
-def create_from_yaml(path: Path) -> Graph:
-    with open(path, "r") as f:
-        logger.debug(f"create graph from {str(path)}")
-        config = yaml.load(f, Loader=yaml.FullLoader)
-        return create_from_dict(config)
+def _merge(d1: dict, d2:dict) -> dict:
+    r = {}
+
+    # graph d2優先
+    if "graph" in d2.keys():
+        r["graph"] = d2["graph"]
+    else:
+        r["graph"] = d1.get("graph")
+
+    # tasks マージ
+    ts1 = d1.get("tasks", [])
+    ts2 = d2.get("tasks", [])
+    ts1.extend(ts2)
+    r["tasks"] = ts1
+    return r
 
 
-def create_from_json(path: Path) -> Graph:
-    with open(path, "r") as f:
-        logger.debug(f"create graph from {str(path)}")
-        config = json.load(f)
-        return create_from_dict(config)
+def _load_recursive(path: Path, config:dict = {}) -> dict:
+    d = _load(path)
+    parent = path.parent
+
+    if d.get("includes"):
+        includes = d["includes"]
+        includes_dict = [_load_recursive(parent / Path(i)) for i in includes]
+
+        inc = {}
+        for i in includes_dict:
+            inc = _merge(inc, i)
+
+        d = _merge(inc, d)
+    return d
+
+
+def create_from_file(path: Path) -> Graph:
+    config = _load_recursive(path)
+    return create_from_dict(config)

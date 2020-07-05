@@ -248,6 +248,9 @@ Task を AirFlow の DAG に登録するサンプルです。
 #### YAML/JSONからのグラフ構築
 
 ```yaml
+includes:
+   - base.yml
+
 graph:
     class:  Graph
 
@@ -267,15 +270,18 @@ tasks:
 ```python
 from aksdp.util import graph_factory as gf
 
-graph = gf.create_from_yaml(Path("graph.yml"))
+graph = gf.create_from_file(Path("graph.yml"))
 ```
 
-graph_factory.create_from_yaml/create_from_json で設定ファイルからグラフを構築する事が可能です。
+graph_factory.create_from_file で設定ファイルからグラフを構築する事が可能です。
 
 tasks.name はそのタスクに依存するタスクの依存を記述する必要がある時以外は省略可能です。  
 tasks.dependencies にはタスクが依存するタスクの name を記述します。  
 task.class はクラスのパスです。import は自動で行います。  
 task.params はタスクのパラメータです。params下の dict がタスクのインスタンス生成時に渡ります。
+
+includes を使用すると複数の設定ファイルからグラフを構築します。
+graph は外側で定義したものが優先、tasks のリストはマージされます。
 
 #### ConcurrentGraph
 

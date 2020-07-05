@@ -1,0 +1,18 @@
+{
+  "tasks": [
+    {
+      "name": "taskC",
+      "class": "main.TaskC",
+      "dependencies": [
+        "taskA"
+      ]
+    },
+    {
+      "class": "main.TaskD",
+      "dependencies": [
+        "taskB",
+        "taskC"
+      ]
+    }
+  ]
+}

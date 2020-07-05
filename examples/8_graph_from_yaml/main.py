@@ -40,7 +40,7 @@ if __name__ == "__main__":
     basicConfig(level=DEBUG)
 
     config = Path(os.path.dirname(__file__)) / Path("graph.yml")
-    graph = gf.create_from_yaml(config)
+    graph = gf.create_from_file(config)
 
     graph.run()
     print(f"PlantUML Diagraph : {PlantUML.graph_to_url(graph)}")

@@ -5,7 +5,7 @@ packages = ["aksdp", "aksdp.data", "aksdp.dataset", "aksdp.graph", "aksdp.reposi
 
 package_data = {"": ["*"]}
 
-install_requires = ["boto3>=1.13.25,<2.0.0", "pandas>=1.0.4,<2.0.0", "sqlalchemy>=1.3.17,<2.0.0"]
+install_requires = []
 
 setup_kwargs = {
     "name": "aksdp",

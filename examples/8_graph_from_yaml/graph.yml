@@ -1,3 +1,6 @@
+includes:
+  - ./graph_2.json
+
 graph:
     class:  Graph
 
@@ -11,12 +14,4 @@ tasks:
     class: main.TaskB
     dependencies:
       - taskA
-  - name: taskC
-    class: main.TaskC
-    dependencies:
-      - taskA
-  - class: main.TaskD
-    dependencies:
-      - taskB
-      - taskC
     
